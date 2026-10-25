@@ -244,8 +244,15 @@ export default async function DashboardPage() {
                       <td className="px-5 py-3.5 text-xs font-medium text-slate-700">
                         {inv.business.name}
                       </td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">
-                        {inv.client.name}
+                      <td className="px-5 py-3.5">
+                        <div className="font-semibold text-slate-900">
+                          {inv.client.companyName || inv.client.name}
+                        </div>
+                        {inv.client.companyName ? (
+                          <div className="text-[11px] text-slate-400">PIC: {inv.client.name}</div>
+                        ) : (
+                          <div className="text-[11px] text-emerald-600 font-medium">Konsumen</div>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-xs text-slate-500">
                         {formatTanggalIndo(inv.issueDate)}

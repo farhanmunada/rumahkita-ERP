@@ -231,11 +231,18 @@ export function InvoiceList({ initialInvoices, businesses }: InvoiceListProps) {
                     </td>
 
                     <td className="px-5 py-4">
-                      <div className="font-semibold text-slate-900">{inv.client.name}</div>
-                      {inv.client.companyName && (
-                        <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                          <Building className="w-3 h-3 text-slate-400" />
-                          <span>{inv.client.companyName}</span>
+                      {inv.client.companyName ? (
+                        <div>
+                          <div className="font-semibold text-slate-900">{inv.client.companyName}</div>
+                          <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <span className="text-slate-400">PIC:</span>
+                            <span>{inv.client.name}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="font-semibold text-slate-900">{inv.client.name}</div>
+                          <div className="text-[11px] text-emerald-600 font-medium">Konsumen Langsung</div>
                         </div>
                       )}
                     </td>

@@ -15,6 +15,7 @@ interface ClientModalProps {
 }
 
 export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: ClientModalProps) {
+  const [clientType, setClientType] = useState<'personal' | 'business'>('personal');
   const [formData, setFormData] = useState<CreateClientDTO>({
     name: '',
     companyName: '',
@@ -27,6 +28,8 @@ export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: Client
 
   useEffect(() => {
     if (clientToEdit) {
+      const isBusiness = Boolean(clientToEdit.companyName && clientToEdit.companyName.trim() !== '');
+      setClientType(isBusiness ? 'business' : 'personal');
       setFormData({
         name: clientToEdit.name || '',
         companyName: clientToEdit.companyName || '',
@@ -35,6 +38,7 @@ export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: Client
         address: clientToEdit.address || '',
       });
     } else {
+      setClientType('personal');
       setFormData({
         name: '',
         companyName: '',
@@ -56,6 +60,11 @@ export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: Client
     setLoading(true);
     setError(null);
 
+    const payload: CreateClientDTO = {
+      ...formData,
+      companyName: clientType === 'business' ? formData.companyName?.trim() : '',
+    };
+
     const isEdit = Boolean(clientToEdit);
     const url = isEdit ? `/api/clients/${clientToEdit?.id}` : '/api/clients';
     const method = isEdit ? 'PUT' : 'POST';
@@ -64,7 +73,7 @@ export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: Client
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -95,54 +104,135 @@ export function ClientModal({ isOpen, onClose, onSuccess, clientToEdit }: Client
           </div>
         )}
 
-        <Input
-          label="Nama Kontak / PIC"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Nama lengkap kontak klien"
-          required
-        />
-
-        <Input
-          label="Nama Perusahaan / Instansi"
-          name="companyName"
-          value={formData.companyName}
-          onChange={handleChange}
-          placeholder="PT / CV / Lembaga (opsional)"
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Input
-            label="Nomor Telepon / WhatsApp"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="08xxxxxxxxxx"
-          />
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="klien@email.com"
-          />
-        </div>
-
+        {/* Tipe Pelanggan: Konsumen Akhir vs B2B */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Alamat Penagihan / Kantor
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Tipe Pelanggan
           </label>
-          <textarea
-            name="address"
-            rows={2}
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Alamat lengkap tujuan penagihan"
-            className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-          />
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => setClientType('personal')}
+              className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                clientType === 'personal'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Konsumen Langsung (Retail/Personal)
+            </button>
+            <button
+              type="button"
+              onClick={() => setClientType('business')}
+              className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                clientType === 'business'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Bisnis / Perusahaan (B2B)
+            </button>
+          </div>
         </div>
+
+        {clientType === 'personal' ? (
+          /* Form Konsumen Langsung */
+          <div className="space-y-3">
+            <Input
+              label="Nama Lengkap Pelanggan"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="cth: Ahmad Fauzi / Ibu Rina"
+              required
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Nomor WhatsApp / HP"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="08xxxxxxxxxx"
+              />
+              <Input
+                label="Email (Opsional)"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="pelanggan@email.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Alamat Domisili / Pengiriman (Opsional)
+              </label>
+              <textarea
+                name="address"
+                rows={2}
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Alamat rumah atau alamat pengiriman barang"
+                className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              />
+            </div>
+          </div>
+        ) : (
+          /* Form Perusahaan / Bisnis B2B */
+          <div className="space-y-3">
+            <Input
+              label="Nama Perusahaan / Instansi / Usaha"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              placeholder="cth: PT Maju Bersama / Toko Sinar Jaya"
+              required
+            />
+
+            <Input
+              label="Nama PIC / Kontak Person"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="cth: Ibu Dian (Purchasing)"
+              required
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Nomor Telepon Kantor / WA"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="021-xxxxxx / 08xxxxxxxx"
+              />
+              <Input
+                label="Email Perusahaan"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="finance@perusahaan.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Alamat Kantor / Penagihan
+              </label>
+              <textarea
+                name="address"
+                rows={2}
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Alamat kantor atau lokasi penagihan"
+                className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
           <Button type="button" variant="outline" onClick={onClose} disabled={loading}>

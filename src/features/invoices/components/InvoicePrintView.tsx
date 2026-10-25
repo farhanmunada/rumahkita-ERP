@@ -240,14 +240,23 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
                 <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">
                   DITAGIHKAN KEPADA:
                 </span>
-                <div className="text-base font-bold text-slate-900">{client.name}</div>
-                {client.companyName && (
-                  <div className="font-semibold text-slate-700">{client.companyName}</div>
+                {client.companyName ? (
+                  <>
+                    <div className="text-base font-bold text-slate-900">{client.companyName}</div>
+                    <div className="text-xs font-medium text-slate-700">u.p. / PIC: {client.name}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-base font-bold text-slate-900">{client.name}</div>
+                    <div className="text-xs text-slate-500 font-medium">Konsumen Langsung</div>
+                  </>
                 )}
                 {client.address && <div className="text-slate-600">{client.address}</div>}
                 {(client.phone || client.email) && (
                   <div className="text-slate-600">
-                    {client.phone} {client.phone && client.email ? '• ' : ''} {client.email}
+                    {client.phone && <span>Telp/WA: {client.phone}</span>}
+                    {client.phone && client.email && <span className="mx-1.5">•</span>}
+                    {client.email && <span>{client.email}</span>}
                   </div>
                 )}
               </div>

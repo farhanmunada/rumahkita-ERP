@@ -61,6 +61,7 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
   );
 
   const selectedBusiness = businesses.find((b) => b.id === businessId);
+  const selectedClient = clients.find((c) => c.id === clientId);
 
   const [terms, setTerms] = useState<string>(
     initialData?.terms || selectedBusiness?.defaultTerms || ''
@@ -275,17 +276,57 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
                       Belum ada klien. Klik &quot;Klien Baru&quot; di atas.
                     </div>
                   ) : (
-                    <select
-                      value={clientId}
-                      onChange={(e) => setClientId(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {clients.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} {c.companyName ? `(${c.companyName})` : ''}
-                        </option>
-                      ))}
-                    </select>
+                    <>
+                      <select
+                        value={clientId}
+                        onChange={(e) => setClientId(Number(e.target.value))}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {clients.map((c) => {
+                          const isB2B = Boolean(c.companyName && c.companyName.trim() !== '');
+                          return (
+                            <option key={c.id} value={c.id}>
+                              {isB2B
+                                ? `${c.companyName} [B2B - PIC: ${c.name}]`
+                                : `${c.name} [Konsumen Langsung${c.phone ? ' - ' + c.phone : ''}]`}
+                            </option>
+                          );
+                        })}
+                      </select>
+
+                      {selectedClient && (
+                        <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-0.5">
+                          <div className="flex items-center gap-1.5 font-semibold">
+                            <span
+                              className={
+                                selectedClient.companyName
+                                  ? 'text-blue-700 font-bold'
+                                  : 'text-emerald-700 font-bold'
+                              }
+                            >
+                              {selectedClient.companyName
+                                ? `[B2B] ${selectedClient.companyName}`
+                                : `[Konsumen] ${selectedClient.name}`}
+                            </span>
+                            {selectedClient.companyName && (
+                              <span className="text-slate-500 font-normal">
+                                • PIC: {selectedClient.name}
+                              </span>
+                            )}
+                          </div>
+                          {selectedClient.phone && (
+                            <div className="text-slate-600">
+                              WhatsApp / HP: <span className="font-medium text-slate-800">{selectedClient.phone}</span>
+                            </div>
+                          )}
+                          {selectedClient.address && (
+                            <div className="text-slate-500 line-clamp-1">
+                              Alamat: {selectedClient.address}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
