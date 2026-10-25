@@ -10,6 +10,7 @@
     "test": "tsx --test tests/unit.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "db:migrate": "tsx src/shared/db/migrate.ts",
     "db:seed": "tsx src/shared/db/seed.ts"
   },
   "dependencies": {
