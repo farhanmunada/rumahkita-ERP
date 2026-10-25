@@ -49,19 +49,19 @@ export function LoginForm() {
     <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/90 shadow-sm p-8 space-y-6">
       {/* Brand Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center p-3 rounded-xl bg-slate-50 border border-slate-200 mb-2">
+        <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-slate-50 border border-slate-200 mb-2 shadow-xs">
           <Image
-            src="/logos/rumah-kita-icon.svg"
-            alt="Rumah Kita"
-            width={36}
-            height={36}
-            className="w-9 h-9"
+            src="/icon-192.png"
+            alt="Vola ERP"
+            width={44}
+            height={44}
+            className="w-11 h-11 rounded-xl object-cover"
             priority
           />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">RK-ERP Portal</h1>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Vola ERP Portal</h1>
         <p className="text-xs text-slate-500">
-          Sistem Manajemen Multi-Lini Usaha Terpadu
+          Sistem Operasional & Generator Invoice Multi-Bisnis
         </p>
       </div>
 

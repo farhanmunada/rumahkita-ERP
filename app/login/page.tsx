@@ -2,8 +2,8 @@ import React, { Suspense } from 'react';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 
 export const metadata = {
-  title: 'Masuk | RK-ERP Sinergi',
-  description: 'Portal autentikasi sistem RK-ERP',
+  title: 'Masuk | Vola ERP Portal',
+  description: 'Portal autentikasi sistem operasional Vola ERP',
 };
 
 export default function LoginPage() {

@@ -532,13 +532,13 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
 
                 {/* Note di Bawah Barcode / QR */}
                 <p className="mt-2 text-[10px] leading-relaxed text-slate-500 max-w-[260px]">
-                  Dokumen ini diterbitkan secara otomatis dan sah melalui sistem RK-ERP. Pindai kode untuk memverifikasi keaslian dokumen.
+                  Dokumen ini diterbitkan secara otomatis dan sah melalui sistem Vola ERP. Pindai kode untuk memverifikasi keaslian dokumen.
                 </p>
               </div>
             </div>
 
             <div className="mt-6 pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400">
-              <span>Dicetak otomatis melalui RK-ERP Invoice System</span>
+              <span>Dicetak otomatis melalui Vola ERP System</span>
               <span>Halaman 1 dari 1</span>
             </div>
           </div>

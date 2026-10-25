@@ -5,10 +5,12 @@ import {
   X,
   Store,
   Plus,
+  Pencil,
   Trash2,
   AlertCircle,
   CheckCircle,
   Loader2,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
@@ -38,6 +40,9 @@ export function VendorCostManagerModal({
   vendorCosts,
   onRefresh,
 }: VendorCostManagerModalProps) {
+  // Edit State
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   // Form State
   const [businessId, setBusinessId] = useState<number>(activeBusinessId);
   const [itemName, setItemName] = useState('');
@@ -54,6 +59,35 @@ export function VendorCostManagerModal({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const resetForm = () => {
+    setEditingId(null);
+    setItemName('');
+    setVendorName('');
+    setCategory('vendor');
+    setUnit('pcs');
+    setBaseCostStr('');
+    setNotes('');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+  };
+
+  const handleStartEdit = (item: VendorCost) => {
+    setEditingId(item.id);
+    setBusinessId(item.businessId);
+    setItemName(item.itemName);
+    setVendorName(item.vendorName || '');
+    setCategory(item.category || 'vendor');
+    setUnit(item.unit || 'pcs');
+    setBaseCostStr(formatRupiah(item.baseCost));
+    setNotes(item.notes || '');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+  };
+
+  const handleCancelEdit = () => {
+    resetForm();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,30 +106,52 @@ export function VendorCostManagerModal({
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/vendor-costs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          businessId,
-          itemName: itemName.trim(),
-          vendorName: vendorName.trim() || null,
-          category,
-          unit: unit.trim() || 'pcs',
-          baseCost: costNum,
-          notes: notes.trim() || null,
-        }),
-      });
+      if (editingId) {
+        const res = await fetch(`/api/vendor-costs/${editingId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessId,
+            itemName: itemName.trim(),
+            vendorName: vendorName.trim() || null,
+            category,
+            unit: unit.trim() || 'pcs',
+            baseCost: costNum,
+            notes: notes.trim() || null,
+          }),
+        });
 
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || 'Gagal menyimpan ke database');
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || 'Gagal memperbarui data vendor');
+        }
+
+        setSuccessMessage('Data tarif vendor berhasil diperbarui!');
+        resetForm();
+      } else {
+        const res = await fetch('/api/vendor-costs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessId,
+            itemName: itemName.trim(),
+            vendorName: vendorName.trim() || null,
+            category,
+            unit: unit.trim() || 'pcs',
+            baseCost: costNum,
+            notes: notes.trim() || null,
+          }),
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || 'Gagal menyimpan ke database');
+        }
+
+        setSuccessMessage('Tarif HPP berhasil ditambahkan ke database!');
+        resetForm();
       }
 
-      setSuccessMessage('Tarif HPP berhasil ditambahkan ke database!');
-      setItemName('');
-      setVendorName('');
-      setBaseCostStr('');
-      setNotes('');
       await onRefresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
@@ -115,6 +171,9 @@ export function VendorCostManagerModal({
       const json = await res.json();
       if (!res.ok || !json.success) {
         throw new Error(json.error || 'Gagal menghapus');
+      }
+      if (editingId === id) {
+        resetForm();
       }
       await onRefresh();
     } catch (err: unknown) {
@@ -153,12 +212,33 @@ export function VendorCostManagerModal({
 
         {/* Content Body: Split Form & Table */}
         <div className="p-5 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Form: Add New */}
+          {/* Left Form: Add / Edit */}
           <div className="lg:col-span-5 bg-slate-50/80 p-4 rounded-xl border border-slate-200 space-y-4">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Plus className="w-4 h-4 text-blue-600" />
-              <span>Tambah Tarif Vendor Baru</span>
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                {editingId ? (
+                  <>
+                    <Pencil className="w-4 h-4 text-amber-600" />
+                    <span>Edit Tarif Vendor</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 text-blue-600" />
+                    <span>Tambah Tarif Baru</span>
+                  </>
+                )}
+              </h3>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 transition-colors"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Batal Edit</span>
+                </button>
+              )}
+            </div>
 
             {errorMessage && (
               <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
@@ -280,25 +360,43 @@ export function VendorCostManagerModal({
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                disabled={isSubmitting}
-                className="w-full text-xs h-8 gap-1.5"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Menyimpan...</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Simpan ke Database</span>
-                  </>
+              <div className="pt-1 flex gap-2">
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    className="w-1/3 text-xs h-8"
+                  >
+                    Batal
+                  </Button>
                 )}
-              </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  disabled={isSubmitting}
+                  className={`text-xs h-8 gap-1.5 ${editingId ? 'w-2/3 bg-amber-600 hover:bg-amber-700 text-white' : 'w-full'}`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>{editingId ? 'Memperbarui...' : 'Menyimpan...'}</span>
+                    </>
+                  ) : editingId ? (
+                    <>
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Simpan Perubahan</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Simpan ke Database</span>
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
           </div>
 
@@ -312,11 +410,11 @@ export function VendorCostManagerModal({
 
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white max-h-[420px] overflow-y-auto">
               <table className="w-full text-xs text-left">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold sticky top-0">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold sticky top-0 z-10">
                   <tr>
                     <th className="py-2 px-3">Item & Vendor</th>
                     <th className="py-2 px-2 text-right">HPP</th>
-                    <th className="py-2 px-2 text-center w-10"></th>
+                    <th className="py-2 px-2 text-center w-16">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -328,7 +426,12 @@ export function VendorCostManagerModal({
                     </tr>
                   ) : (
                     vendorCosts.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/70">
+                      <tr
+                        key={item.id}
+                        className={`hover:bg-slate-50/70 transition-colors ${
+                          editingId === item.id ? 'bg-amber-50/60' : ''
+                        }`}
+                      >
                         <td className="py-2.5 px-3">
                           <div className="font-semibold text-slate-900">
                             {item.itemName}
@@ -342,6 +445,11 @@ export function VendorCostManagerModal({
                             <span className="bg-slate-100 px-1.5 py-0.2 rounded text-slate-600">
                               {item.category}
                             </span>
+                            {item.notes && (
+                              <span className="text-slate-400 truncate max-w-[150px]">
+                                · {item.notes}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="py-2.5 px-2 text-right">
@@ -353,15 +461,25 @@ export function VendorCostManagerModal({
                           </span>
                         </td>
                         <td className="py-2.5 px-2 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(item.id)}
-                            disabled={deletingId === item.id}
-                            className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
-                            title="Hapus dari master DB"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(item)}
+                              className="text-slate-400 hover:text-amber-600 p-1.5 rounded hover:bg-amber-50 transition-colors"
+                              title="Edit tarif vendor"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item.id)}
+                              disabled={deletingId === item.id}
+                              className="text-slate-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 transition-colors"
+                              title="Hapus dari database"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { FileText, Users, Building2, LayoutDashboard, Plus, Calculator, LogOut } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
@@ -38,10 +39,14 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2.5 font-bold text-lg text-slate-900 tracking-tight">
-              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-black text-sm shadow-sm">
-                RK
-              </span>
-              <span>RK-ERP</span>
+              <Image
+                src="/icon-32.png"
+                alt="Vola ERP"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-lg shadow-xs object-cover"
+              />
+              <span>Vola ERP</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">

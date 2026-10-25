@@ -4,7 +4,7 @@ import { getVendorCosts } from '@/features/costing/services/vendor-cost.service'
 import { CostCalculator } from '@/features/costing/components/CostCalculator';
 
 export const metadata = {
-  title: 'Kalkulator HPP & Estimasi Harga Jual | RK-ERP',
+  title: 'Kalkulator HPP & Estimasi Harga Jual | Vola ERP',
   description: 'Hitung modal awal produksi dan simulasikan perbandingan margin harga jual ke konsumen.',
 };
 

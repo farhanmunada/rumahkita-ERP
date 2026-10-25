@@ -106,7 +106,7 @@ export default async function DashboardPage() {
       {/* Banner Selamat Datang & Quick Action */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-6 sm:p-8 rounded-2xl shadow-md">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black tracking-tight">RK-ERP Invoice Hub</h1>
+          <h1 className="text-2xl font-black tracking-tight">Vola ERP Invoice Hub</h1>
           <p className="text-blue-100 text-sm max-w-xl">
             Sistem penerbitan tagihan profesional standar A4 untuk 4 lini usaha: Percetakan, Desain Grafis, Web Development, dan Konveksi.
           </p>

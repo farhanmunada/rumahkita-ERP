@@ -36,3 +36,7 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+
+# App Icons Pack (local source only)
+AppIcons/
+

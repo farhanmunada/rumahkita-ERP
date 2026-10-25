@@ -4,8 +4,22 @@ import { Navbar } from '@/shared/components/Navbar';
 import { SessionTimeoutWatcher } from '@/features/auth/components/SessionTimeoutWatcher';
 
 export const metadata: Metadata = {
-  title: 'RK-ERP — Multi-Business Invoice Generator',
-  description: 'Aplikasi pencatatan dan pembuatan invoice multi-lini bisnis profesional standar A4',
+  title: {
+    default: 'Vola ERP — Multi-Business Management & Invoice Hub',
+    template: '%s | Vola ERP',
+  },
+  description: 'Sistem operasional, kalkulator HPP vendor broker, dan generator invoice multi-lini bisnis profesional standar A4',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
