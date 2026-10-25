@@ -248,10 +248,14 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
                   label="Unit Bisnis Penerbit"
                   value={businessId}
                   onChange={(e) => handleBusinessChange(Number(e.target.value))}
-                  options={businesses.map((b) => ({
-                    value: b.id,
-                    label: `${b.name} (${b.invoicePrefix})`,
-                  }))}
+                  options={
+                    businesses.length > 0
+                      ? businesses.map((b) => ({
+                          value: b.id,
+                          label: `${b.name} (${b.invoicePrefix})`,
+                        }))
+                      : [{ value: 0, label: 'Data unit bisnis kosong' }]
+                  }
                 />
 
                 <div>
