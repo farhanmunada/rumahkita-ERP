@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import QRCode from 'qrcode';
 import { InvoiceWithRelations, InvoiceStatus } from '../types';
 import { formatRupiah } from '@/shared/lib/currency';
 import { formatTanggalIndo } from '@/shared/lib/date';
 import { terbilangRupiah } from '@/shared/lib/terbilang';
 import { Badge } from '@/shared/components/ui/Badge';
 import { Button } from '@/shared/components/ui/Button';
-import { Printer, ArrowLeft, Edit3, CheckCircle2, Send, XCircle } from 'lucide-react';
+import { Printer, ArrowLeft, Edit3, CheckCircle2, Send, XCircle, ShieldCheck } from 'lucide-react';
 
 interface InvoicePrintViewProps {
   invoice: InvoiceWithRelations;
@@ -19,6 +20,22 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
   const router = useRouter();
   const [invoice, setInvoice] = useState<InvoiceWithRelations>(initialInvoice);
   const [updating, setUpdating] = useState(false);
+  const [qrSvg, setQrSvg] = useState<string>('');
+
+  useEffect(() => {
+    const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
+    const verifyUrl = `${origin}/invoices/${invoice.id}/print`;
+    QRCode.toString(verifyUrl, {
+      type: 'svg',
+      margin: 1,
+      color: {
+        dark: '#0f172a',
+        light: '#ffffff',
+      },
+    })
+      .then((svg) => setQrSvg(svg))
+      .catch((err) => console.error('Failed to generate verification QR code:', err));
+  }, [invoice.id]);
 
   const business = invoice.business;
   const client = invoice.client;
@@ -98,6 +115,8 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
     switch (status) {
       case 'PAID':
         return <Badge variant="paid">LUNAS / PAID</Badge>;
+      case 'PARTIAL':
+        return <Badge variant="partial">DP DITERIMA / PARTIAL</Badge>;
       case 'SENT':
         return <Badge variant="sent">TERKIRIM / SENT</Badge>;
       case 'CANCELLED':
@@ -137,7 +156,7 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
               className="text-emerald-700 hover:bg-emerald-50 border-emerald-300 gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Tandai Lunas</span>
+              <span>{invoice.status === 'PARTIAL' ? 'Konfirmasi Pelunasan' : 'Tandai Lunas'}</span>
             </Button>
           )}
 
@@ -196,12 +215,21 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
             <div className="flex justify-between items-start pb-6 border-b-2 border-slate-800">
               {/* Info Unit Usaha */}
               <div className="max-w-md space-y-1">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-7 h-7 rounded flex items-center justify-center font-black text-white text-xs ${theme.bgPrimary}`}
-                  >
-                    {business.invoicePrefix}
-                  </div>
+                <div className="flex items-center gap-2.5">
+                  {business.slug === 'percetakan' ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src="/logos/rumah-kita-icon.svg"
+                      alt="Rumah Kita Percetakan"
+                      className="w-8 h-8 object-contain shrink-0"
+                    />
+                  ) : (
+                    <div
+                      className={`w-7 h-7 rounded flex items-center justify-center font-black text-white text-xs ${theme.bgPrimary}`}
+                    >
+                      {business.invoicePrefix}
+                    </div>
+                  )}
                   <h1 className={`text-2xl font-black tracking-tight ${theme.primary}`}>
                     {business.name}
                   </h1>
@@ -336,10 +364,18 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
                 <div className="flex-1 space-y-4">
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
-                      TERBILANG:
+                      {(invoice.downPayment || 0) > 0 && invoice.status !== 'PAID'
+                        ? 'TERBILANG SISA PELUNASAN:'
+                        : 'TERBILANG TOTAL:'}
                     </span>
                     <p className="text-xs font-semibold italic text-slate-800">
-                      &ldquo;{terbilangRupiah(invoice.totalAmount)}&rdquo;
+                      &ldquo;
+                      {terbilangRupiah(
+                        (invoice.downPayment || 0) > 0 && invoice.status !== 'PAID'
+                          ? Math.max(0, invoice.totalAmount - (invoice.downPayment || 0))
+                          : invoice.totalAmount
+                      )}
+                      &rdquo;
                     </p>
                   </div>
 
@@ -351,7 +387,7 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
                   )}
                 </div>
 
-                {/* Bagian Kanan: Kalkulasi Subtotal, Diskon, Pajak, Grand Total */}
+                {/* Bagian Kanan: Kalkulasi Subtotal, Diskon, Pajak, Grand Total & DP */}
                 <div className="w-72 space-y-2 text-xs">
                   <div className="flex justify-between py-1 border-b border-slate-100">
                     <span className="text-slate-600">Subtotal:</span>
@@ -384,12 +420,54 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
                     </div>
                   )}
 
-                  <div className={`flex justify-between items-center py-2 px-3 rounded-lg ${theme.lightBg} border ${theme.borderPrimary}`}>
-                    <span className="font-black text-slate-900 uppercase">Grand Total:</span>
-                    <span className={`text-base font-black font-mono ${theme.primary}`}>
-                      {formatRupiah(invoice.totalAmount)}
-                    </span>
-                  </div>
+                  {(invoice.downPayment || 0) > 0 ? (
+                    <>
+                      <div className="flex justify-between py-1 border-b border-slate-100 font-bold">
+                        <span className="text-slate-700">Total Order:</span>
+                        <span className="font-mono text-slate-900">
+                          {formatRupiah(invoice.totalAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-slate-100 text-emerald-700 font-medium">
+                        <span>Uang Muka (DP) Diterima:</span>
+                        <span className="font-mono font-bold">
+                          -{formatRupiah(invoice.downPayment || 0)}
+                        </span>
+                      </div>
+                      <div
+                        className={`flex justify-between items-center py-2 px-3 rounded-lg ${theme.lightBg} border ${theme.borderPrimary}`}
+                      >
+                        <div>
+                          <span className="font-black text-slate-900 uppercase block">
+                            Sisa Pelunasan:
+                          </span>
+                          {invoice.status === 'PAID' ? (
+                            <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">
+                              (LUNAS)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider">
+                              (SISA TAGIHAN)
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-base font-black font-mono ${theme.primary}`}>
+                          {invoice.status === 'PAID'
+                            ? formatRupiah(0)
+                            : formatRupiah(Math.max(0, invoice.totalAmount - (invoice.downPayment || 0)))}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div
+                      className={`flex justify-between items-center py-2 px-3 rounded-lg ${theme.lightBg} border ${theme.borderPrimary}`}
+                    >
+                      <span className="font-black text-slate-900 uppercase">Grand Total:</span>
+                      <span className={`text-base font-black font-mono ${theme.primary}`}>
+                        {formatRupiah(invoice.totalAmount)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -423,22 +501,39 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
                 )}
               </div>
 
-              {/* Tanda Tangan Resmi */}
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="flex flex-col justify-between h-36">
-                  <div className="text-slate-600 font-medium">Tanda Terima Pelanggan,</div>
-                  <div className="border-b border-slate-300 w-32 mx-auto" />
-                  <div className="font-semibold text-slate-800">({client.name})</div>
+              {/* Otorisasi Digital via QR Code Verifikasi */}
+              <div className="flex flex-col items-center justify-center p-4 border border-slate-200/90 rounded-xl bg-slate-50/60 text-center">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800 tracking-wider uppercase mb-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Verifikasi Digital Sistem</span>
                 </div>
 
-                <div className="flex flex-col justify-between h-36">
-                  <div className="text-slate-600 font-medium">
-                    Hormat Kami,
-                    <div className="font-semibold text-slate-900 text-[11px]">{business.name}</div>
-                  </div>
-                  <div className="border-b border-slate-300 w-32 mx-auto" />
-                  <div className="font-semibold text-slate-800">(Otorisasi / Kasir)</div>
+                {/* QR Code Container */}
+                <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-xs inline-block">
+                  {qrSvg ? (
+                    <div
+                      className="w-24 h-24 [&>svg]:w-full [&>svg]:h-full"
+                      dangerouslySetInnerHTML={{ __html: qrSvg }}
+                    />
+                  ) : (
+                    <div className="w-24 h-24 flex items-center justify-center text-slate-400 text-[10px]">
+                      Memuat QR...
+                    </div>
+                  )}
                 </div>
+
+                {/* Nomor Invoice & Identitas Bisnis */}
+                <div className="mt-2 font-mono font-bold text-[11px] text-slate-900">
+                  {invoice.invoiceNumber}
+                </div>
+                <div className="text-[10px] text-slate-600 font-medium">
+                  {business.name}
+                </div>
+
+                {/* Note di Bawah Barcode / QR */}
+                <p className="mt-2 text-[10px] leading-relaxed text-slate-500 max-w-[260px]">
+                  Dokumen ini diterbitkan secara otomatis dan sah melalui sistem RK-ERP. Pindai kode untuk memverifikasi keaslian dokumen.
+                </p>
               </div>
             </div>
 

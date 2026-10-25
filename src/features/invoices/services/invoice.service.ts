@@ -40,6 +40,13 @@ export async function createInvoice(data: CreateInvoiceDTO): Promise<Invoice> {
 
   const invoiceNumber = await generateInvoiceNumber(data.businessId, data.issueDate);
 
+  const downPayment = Math.min(Math.max(0, data.downPayment || 0), totalAmount);
+  const initialStatus = downPayment >= totalAmount && totalAmount > 0 
+    ? 'PAID' 
+    : downPayment > 0 
+    ? 'PARTIAL' 
+    : 'DRAFT';
+
   const [insertedInvoice] = await db
     .insert(invoices)
     .values({
@@ -48,13 +55,14 @@ export async function createInvoice(data: CreateInvoiceDTO): Promise<Invoice> {
       clientId: data.clientId,
       issueDate: data.issueDate,
       dueDate: data.dueDate,
-      status: 'DRAFT',
+      status: initialStatus,
       subtotal,
       discountType,
       discountValue,
       taxPercent,
       taxAmount,
       totalAmount,
+      downPayment,
       notes: data.notes || '',
       terms: data.terms || '',
       createdAt: new Date(),
@@ -167,6 +175,10 @@ export async function updateInvoice(id: number, data: CreateInvoiceDTO): Promise
     discountValue
   );
 
+  const downPayment = data.downPayment !== undefined
+    ? Math.min(Math.max(0, data.downPayment), totalAmount)
+    : undefined;
+
   const [updatedInvoice] = await db
     .update(invoices)
     .set({
@@ -180,6 +192,7 @@ export async function updateInvoice(id: number, data: CreateInvoiceDTO): Promise
       taxPercent,
       taxAmount,
       totalAmount,
+      ...(downPayment !== undefined ? { downPayment } : {}),
       notes: data.notes || '',
       terms: data.terms || '',
       updatedAt: new Date(),
@@ -219,21 +232,29 @@ export async function getDashboardStats() {
   const totalInvoices = all.length;
   const draftCount = all.filter((i) => i.status === 'DRAFT').length;
   const sentCount = all.filter((i) => i.status === 'SENT').length;
+  const partialCount = all.filter((i) => i.status === 'PARTIAL').length;
   const paidCount = all.filter((i) => i.status === 'PAID').length;
   const cancelledCount = all.filter((i) => i.status === 'CANCELLED').length;
 
   const totalRevenue = all
     .filter((i) => i.status === 'PAID')
-    .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+    .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0) +
+    all
+      .filter((i) => i.status === 'PARTIAL')
+      .reduce((acc, curr) => acc + (curr.downPayment || 0), 0);
 
   const pendingRevenue = all
     .filter((i) => i.status === 'SENT' || i.status === 'DRAFT')
-    .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+    .reduce((acc, curr) => acc + Math.max(0, (curr.totalAmount || 0) - (curr.downPayment || 0)), 0) +
+    all
+      .filter((i) => i.status === 'PARTIAL')
+      .reduce((acc, curr) => acc + Math.max(0, (curr.totalAmount || 0) - (curr.downPayment || 0)), 0);
 
   return {
     totalInvoices,
     draftCount,
     sentCount,
+    partialCount,
     paidCount,
     cancelledCount,
     totalRevenue,

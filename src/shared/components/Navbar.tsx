@@ -2,19 +2,35 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { FileText, Users, Building2, LayoutDashboard, Plus } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { FileText, Users, Building2, LayoutDashboard, Plus, Calculator, LogOut } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Jangan tampilkan navbar di halaman login atau cetak invoice
+  if (pathname === '/login' || /^\/invoices\/\d+\/print$/.test(pathname)) {
+    return null;
+  }
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/invoices', label: 'Invoices', icon: FileText },
     { href: '/clients', label: 'Klien', icon: Users },
+    { href: '/calculator', label: 'Kalkulator HPP', icon: Calculator },
     { href: '/settings/businesses', label: 'Unit Bisnis', icon: Building2 },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      router.push('/login');
+      router.refresh();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200/80 shadow-sm print:hidden">
@@ -59,6 +75,15 @@ export function Navbar() {
               <Plus className="w-4 h-4" />
               <span>Buat Invoice</span>
             </Link>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Keluar dari sesi"
+              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

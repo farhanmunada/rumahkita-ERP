@@ -94,3 +94,59 @@
    - Modul Klien (daftar pelanggan per unit atau lintas unit).
    - Form Pembuatan Invoice Dinamis (pilih unit bisnis -> nomor ter-generate otomatis -> pilih klien -> input baris barang/jasa -> kalkulasi pajak/diskon).
    - Halaman Preview & Cetak Invoice A4 profesional.
+
+---
+
+## 6. Riset Fitur: Kalkulator HPP & Estimasi Harga Jual Multi-Bisnis (Costing & Pricing Calculator)
+
+**Tanggal:** 2026-10-25  
+**Status:** Verified  
+
+### 6.1 Latar Belakang & Masalah Bisnis
+Pada operasional 4 unit bisnis RK-ERP (Percetakan, Konveksi, Desain Studio, Web Dev), pemilik usaha seringkali mengeluarkan modal di awal (uang kas) untuk belanja bahan baku, operasional, atau vendor pihak ketiga sebelum menentukan harga penawaran akhir ke konsumen:
+- **Percetakan:** Pembelian kertas plano/rim, tinta, lem/laminasi doff/glossy, ongkos potong/finishing mesin.
+- **Konveksi:** Kain roll/kilo, jasa potong pola (cutting), sablon/DTF/bordir, jasa jahit per pcs, aksesoris kancing/resleting, hangtag, dan plastik packing.
+- **Desain & Creative:** Jam kerja tim desainer, lisensi aset gambar/font komersial, biaya mock-up/cetak dummy.
+- **Web Dev & Tech:** Server VPS/hosting awal, pembelian domain/SSL, lisensi template/plugin, API pihak ketiga (SMS/WhatsApp Gateway), dan man-days developer.
+
+Tanpa kalkulator terstruktur:
+1. Pemilik usaha rentan salah menghitung modal dasar (HPP / COGS) sehingga margin riil jauh lebih tipis dari estimasi, bahkan berisiko nombok (rugi).
+2. Sulit memberikan opsi harga yang fleksibel saat negosiasi dengan konsumen (misal: harga minimal kawan vs harga standar vs harga premium).
+3. Ada jeda manual antara menghitung modal di kertas/Excel dengan pembuatan draft invoice resmi.
+
+### 6.2 Rumus & Logika Finansial Baku
+
+1. **Total Modal / Biaya Pokok Produksi (HPP):**
+   $$\text{Total HPP} = \sum \text{Biaya Bahan} + \sum \text{Biaya Operasional/Jasa} + \sum \text{Biaya Overhead/Lainnya}$$
+
+2. **HPP per Unit (Modal per Pcs):**
+   $$\text{HPP per Unit} = \frac{\text{Total HPP}}{\text{Jumlah Kuantitas (Qty)}}$$
+
+3. **Perbedaan Krusial: Margin Keuntungan vs Markup Modal**
+   - **Markup:** Persentase laba ditambahkan di atas nilai modal.
+     $$\text{Harga Jual (Markup)} = \text{HPP} \times (1 + \frac{\text{Markup \%}}{100})$$
+   - **Profit Margin:** Persentase laba dihitung dari total harga jual yang diterima dari pembeli.
+     $$\text{Harga Jual (Margin)} = \frac{\text{HPP}}{1 - \frac{\text{Margin \%}}{100}}$$
+   *Rekomendasi UI:* Sediakan toggle instan antara mode **Profit Margin** (standar industri retail/ERP) dan **Markup Modal**, dengan penjelasan visual jelas agar pengguna tidak keliru.
+
+4. **Estimasi Laba Kotor (Gross Profit):**
+   $$\text{Total Profit} = \text{Total Harga Jual} - \text{Total HPP}$$
+   $$\text{Profit per Unit} = \text{Harga Jual per Unit} - \text{HPP per Unit}$$
+
+### 6.3 Rekomendasi Fitur Solusi (Kalkulator Cerdas Multi-Bisnis)
+
+1. **Tabel Rincian Biaya Modal Dinamis (Line Items Modal):**
+   - Pengguna bisa menambah komponen biaya tanpa batas: nama pos biaya, kategori (`Bahan Baku`, `Tenaga Kerja/Jasa`, `Overhead/Operasional`), kuantitas, satuan, dan harga per satuan.
+   - Mendukung kuantitas pesanan akhir (Qty Output, e.g. 100 pcs kaos, 500 pcs brosur, atau 1 paket web).
+2. **Preset Cepat Berdasarkan Unit Bisnis (Smart Templates):**
+   - Template default pos biaya yang relevan untuk unit: Percetakan (kertas, cetak, laminasi, jilid), Konveksi (kain, sablon, jahit, packing), Desain, dan Web Dev.
+3. **Simulasi Perbandingan Multi-Skenario Harga (Tier Comparison Table):**
+   Menampilkan 4 skenario harga jual sekaligus secara instan:
+   - **Batas Aman / Tipis (e.g. 15% - 20%):** Untuk pesanan borongan partai besar atau rekanan dekat.
+   - **Standar / Kompetitif (e.g. 30% - 35%):** Harga pasar harian yang sehat.
+   - **Ideal / Target (e.g. 45% - 50%):** Margin optimal untuk profit maksimal.
+   - **Premium / Custom (% bebas ditentukan pengguna).**
+4. **Direct Bridge ke Form Invoice (Aksi 1-Klik):**
+   - Tombol **"Buat Invoice dari Kalkulasi Ini"**: langsung mengalihkan pengguna ke form `Create Invoice` dengan unit bisnis terpilih, nama produk otomatis, kuantitas order, dan harga jual yang sudah dihitung, siap diproses menjadi invoice resmi.
+5. **Penyimpanan Riwayat Kalkulasi (Draft Costing):**
+   - Simpan kalkulasi ke database lokal / state agar pengguna bisa membuka kembali hitungan modal lama saat klien repeat order.

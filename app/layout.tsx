@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/shared/components/Navbar';
+import { SessionTimeoutWatcher } from '@/features/auth/components/SessionTimeoutWatcher';
 
 export const metadata: Metadata = {
   title: 'RK-ERP — Multi-Business Invoice Generator',
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
+        <SessionTimeoutWatcher />
         <Navbar />
         <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto print:p-0 print:max-w-none">
           {children}

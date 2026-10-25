@@ -28,6 +28,7 @@ interface InvoiceListItem {
   dueDate: string;
   status: string;
   totalAmount: number;
+  downPayment: number;
   businessId: number;
   business: {
     id: number;
@@ -101,6 +102,8 @@ export function InvoiceList({ initialInvoices, businesses }: InvoiceListProps) {
     switch (status) {
       case 'PAID':
         return <Badge variant="paid">Lunas</Badge>;
+      case 'PARTIAL':
+        return <Badge variant="partial">DP Diterima</Badge>;
       case 'SENT':
         return <Badge variant="sent">Terkirim</Badge>;
       case 'CANCELLED':
@@ -167,6 +170,7 @@ export function InvoiceList({ initialInvoices, businesses }: InvoiceListProps) {
             <option value="ALL">Semua Status</option>
             <option value="DRAFT">Draft</option>
             <option value="SENT">Terkirim</option>
+            <option value="PARTIAL">DP Diterima</option>
             <option value="PAID">Lunas</option>
             <option value="CANCELLED">Dibatalkan</option>
           </select>
@@ -251,9 +255,15 @@ export function InvoiceList({ initialInvoices, businesses }: InvoiceListProps) {
                       <span className="font-bold text-slate-900 font-mono">
                         {formatRupiah(inv.totalAmount)}
                       </span>
-                      <div className="text-[11px] text-slate-400">
-                        Jatuh Tempo: {formatTanggalIndo(inv.dueDate)}
-                      </div>
+                      {inv.downPayment > 0 && inv.status !== 'PAID' ? (
+                        <div className="text-[11px] text-amber-700 font-medium">
+                          DP: {formatRupiah(inv.downPayment)} (Sisa: {formatRupiah(Math.max(0, inv.totalAmount - inv.downPayment))})
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-slate-400">
+                          Jatuh Tempo: {formatTanggalIndo(inv.dueDate)}
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-5 py-4 text-center">

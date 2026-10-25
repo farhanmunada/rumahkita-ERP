@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Business, Client } from '@/shared/db/schema';
 import { Card, CardHeader, CardBody } from '@/shared/components/ui/Card';
 import { Input } from '@/shared/components/ui/Input';
@@ -30,13 +30,21 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ businesses, initialClients, initialData }: InvoiceFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [clientModalOpen, setClientModalOpen] = useState(false);
 
   const defaultBusiness = businesses[0];
 
+  // Ambil initial parameter dari URL jika diarahkan dari kalkulator HPP
+  const queryBusinessId = searchParams.get('businessId') ? Number(searchParams.get('businessId')) : null;
+  const queryDescription = searchParams.get('description');
+  const queryQty = searchParams.get('quantity') ? Number(searchParams.get('quantity')) : null;
+  const queryUnit = searchParams.get('unit');
+  const queryUnitPrice = searchParams.get('unitPrice') ? Number(searchParams.get('unitPrice')) : null;
+
   const [businessId, setBusinessId] = useState<number>(
-    initialData?.businessId || defaultBusiness?.id || 1
+    initialData?.businessId || queryBusinessId || defaultBusiness?.id || 1
   );
   const [clientId, setClientId] = useState<number>(
     initialData?.clientId || (initialClients[0]?.id ? initialClients[0].id : 0)
@@ -56,6 +64,9 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
   const [discountValue, setDiscountValue] = useState<number>(
     initialData?.discountValue || 0
   );
+  const [downPayment, setDownPayment] = useState<number>(
+    initialData?.downPayment || 0
+  );
   const [notes, setNotes] = useState<string>(
     initialData?.notes || 'Terima kasih atas kepercayaan dan kerja samanya.'
   );
@@ -67,18 +78,32 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
     initialData?.terms || selectedBusiness?.defaultTerms || ''
   );
 
-  const [items, setItems] = useState<InvoiceFormItem[]>(
-    initialData?.items?.map((it: any) => ({
-      id: it.id,
-      itemType: it.itemType || 'service',
-      description: it.description,
-      quantity: Number(it.quantity) || 1,
-      unit: it.unit || '',
-      unitPrice: it.unitPrice || 0,
-    })) || [
-      { itemType: 'service', description: '', quantity: 1, unit: '', unitPrice: 0 },
-    ]
-  );
+  const [items, setItems] = useState<InvoiceFormItem[]>(() => {
+    if (initialData?.items?.length) {
+      return initialData.items.map((it: any) => ({
+        id: it.id,
+        itemType: it.itemType || 'service',
+        description: it.description,
+        quantity: Number(it.quantity) || 1,
+        unit: it.unit || '',
+        unitPrice: it.unitPrice || 0,
+      }));
+    }
+
+    if (queryDescription || queryUnitPrice) {
+      return [
+        {
+          itemType: 'product',
+          description: queryDescription || '',
+          quantity: queryQty || 1,
+          unit: queryUnit || 'pcs',
+          unitPrice: queryUnitPrice || 0,
+        },
+      ];
+    }
+
+    return [{ itemType: 'service', description: '', quantity: 1, unit: '', unitPrice: 0 }];
+  });
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +172,7 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
       taxPercent,
       discountType,
       discountValue,
+      downPayment: Number(downPayment) || 0,
       notes,
       terms,
       items: items.map((it) => ({
@@ -572,13 +598,67 @@ export function InvoiceForm({ businesses, initialClients, initialData }: Invoice
                 )}
               </div>
 
-              {/* Grand Total */}
-              <div className="pt-4 border-t-2 border-slate-200 bg-slate-50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                  Total Tagihan (Grand Total)
+              {/* Uang Muka (DP) */}
+              <div className="pt-3 border-t border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-700">Uang Muka (DP)</label>
+                  <div className="flex gap-1 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setDownPayment(0)}
+                      className={`px-2 py-0.5 rounded border ${downPayment === 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}
+                    >
+                      0
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDownPayment(Math.round(totals.totalAmount * 0.5))}
+                      className={`px-2 py-0.5 rounded border ${downPayment === Math.round(totals.totalAmount * 0.5) && downPayment > 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}
+                    >
+                      50%
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDownPayment(totals.totalAmount)}
+                      className={`px-2 py-0.5 rounded border ${downPayment === totals.totalAmount && downPayment > 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-200'}`}
+                    >
+                      Lunas
+                    </button>
+                  </div>
                 </div>
-                <div className="text-2xl font-black text-blue-700 font-mono">
-                  {formatRupiah(totals.totalAmount)}
+                <Input
+                  type="number"
+                  min="0"
+                  max={totals.totalAmount}
+                  value={downPayment}
+                  onChange={(e) => setDownPayment(Math.min(totals.totalAmount, Math.max(0, parseFloat(e.target.value) || 0)))}
+                  placeholder="Nominal DP (Rp)"
+                />
+                {downPayment > 0 && (
+                  <div className="flex justify-between text-xs text-emerald-600 font-medium">
+                    <span>DP Dibayar:</span>
+                    <span>{formatRupiah(downPayment)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Grand Total & Sisa Tagihan */}
+              <div className="pt-4 border-t-2 border-slate-200 bg-slate-50 -mx-6 -mb-6 p-6 rounded-b-xl space-y-2">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Total Order
+                  </span>
+                  <span className="text-lg font-bold text-slate-700 font-mono">
+                    {formatRupiah(totals.totalAmount)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-baseline pt-2 border-t border-slate-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Sisa Pelunasan
+                  </span>
+                  <span className="text-2xl font-black text-blue-700 font-mono">
+                    {formatRupiah(Math.max(0, totals.totalAmount - downPayment))}
+                  </span>
                 </div>
               </div>
             </CardBody>

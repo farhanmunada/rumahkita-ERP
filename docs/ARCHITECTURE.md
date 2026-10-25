@@ -239,3 +239,93 @@ Sesuai aturan arsitektur:
 - Rencana di atas melibatkan >3 file baru dan penetapan skema database PostgreSQL.
 - Implementasi kode **DITAHAN** hingga pengguna menyetujui dokumen arsitektur ini.
 - Setelah persetujuan diberikan, eksekusi akan berjalan langkah demi langkah (ST-1 s/d ST-10) dengan verifikasi ketat pada tiap langkah.
+
+---
+
+## 7. Arsitektur Modul Baru: Kalkulator HPP & Estimasi Harga Jual (Costing & Pricing Calculator)
+
+### 7.1 Alur Data & State Flow
+```text
+[ Input Modal Proyek ] (Bahan Baku + Tenaga Kerja + Overhead + Qty Target)
+        │
+        ▼ (Pure Function: calculateCostingTotals)
+[ Total HPP & Modal per Unit ]
+        │
+        ▼ (Simulasi Margin vs Markup)
+[ 4 Tier Perbandingan Harga Jual ]
+  ├── 1. Margin Tipis (20%)    -> Cocok untuk partai besar / rekanan
+  ├── 2. Margin Standar (35%)  -> Harga pasar harian kompetitif
+  ├── 3. Margin Ideal (50%)    -> Margin keuntungan optimal
+  └── 4. Kustom (User Def.)    -> Input persentase atau nominal bebas
+        │
+        ▼ (1-Click Bridge via URL State / Session)
+[ Redirect ke /invoices/new?business_id=...&item_desc=...&qty=...&price=... ]
+        │
+        ▼
+[ Form Invoice Terisi Otomatis Siap Terbit ]
+```
+
+### 7.2 Struktur Berkas Tambahan (Feature-First)
+```text
+src/features/costing/
+├── components/
+│   ├── CostCalculator.tsx          # Komponen utama form kalkulator modal & tier harga
+│   ├── CostItemList.tsx            # Baris dinamis input pos biaya modal (Material/Labor/Overhead)
+│   └── PriceTierComparison.tsx     # Kartu perbandingan 4 skenario harga jual & laba kotor
+├── services/
+│   ├── costing-calculator.ts       # Logika kalkulasi murni (HPP, margin, markup, laba)
+│   └── costing-presets.ts          # Template pos modal default per lini bisnis
+└── types.ts                        # Definisi tipe CostItem, CostCategory, PriceTier, CalculationResult
+
+app/calculator/
+└── page.tsx                        # Halaman kalkulator HPP & margin (akses via navbar & dashboard)
+```
+
+### 7.3 Rencana Verifikasi Modul Kalkulator
+- Unit test: uji fungsi `costing-calculator.ts` (kalkulasi HPP, selisih rumus margin vs markup, pembulatan harga).
+- Typecheck: `npx tsc --noEmit` bersih 0 error.
+- Lint: `npm run lint` bersih.
+- Build: `npm run build` sukses.
+
+---
+
+## 8. Arsitektur Modul Autentikasi Sesi & Idle Timeout (1 Jam)
+
+### 8.1 Komponen & Alur Kerja
+```text
+[ Browser Request ] ───▶ [ Next.js middleware.ts ]
+                               │
+            ┌──────────────────┴──────────────────┐
+            ▼                                     ▼
+     [ Rute Publik ]                       [ Rute Terproteksi ]
+  - /login                                        │
+  - /api/auth/*                          Cek Cookie `rk_session`
+  - /invoices/:id/print (QR verif)                │
+                                       ┌──────────┴──────────┐
+                                       ▼                     ▼
+                               [ Valid & Aktif ]     [ Expired / Null ]
+                                 Lanjut ke Halaman     Redirect ke /login
+                                       │
+                                       ▼
+                       [ Client SessionWatcher ]
+                 (Dengar event interaksi pengguna)
+                 Idle 60 mnt -> auto-logout & redirect
+```
+
+### 8.2 Struktur Berkas
+```text
+src/features/auth/
+├── services/auth-session.ts         # Sign & verify HMAC SHA-256 session token
+├── components/
+│   ├── LoginForm.tsx                # Form login minimalis & validasi
+│   └── SessionTimeoutWatcher.tsx    # Listener client interaksi & timer auto-logout 1 jam
+└── types.ts                         # Definisi payload sesi & kredensial
+
+app/
+├── login/page.tsx                   # Halaman antarmuka login
+├── api/auth/
+│   ├── login/route.ts               # POST login & terbitkan cookie
+│   ├── logout/route.ts              # POST hapus cookie sesi
+│   └── touch/route.ts               # POST perpanjang masa aktif sesi
+└── middleware.ts                    # Edge interceptor validasi sesi
+```

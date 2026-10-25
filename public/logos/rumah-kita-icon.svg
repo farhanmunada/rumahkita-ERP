@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="rkRoof" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="rkPaper1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="rkPaper2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Chimney / Print block -->
+  <rect x="68" y="16" width="9" height="16" rx="2" fill="#0284C7" />
+
+  <!-- House Gable Roof -->
+  <path d="M50 8 L10 38 L18 45 L50 21 L82 45 L90 38 Z" fill="url(#rkRoof)" />
+
+  <!-- Sheet 1 (Background paper) -->
+  <rect x="25" y="36" width="36" height="46" rx="4" fill="#CBD5E1" />
+
+  <!-- Sheet 2 (Mid paper - cyan accent) -->
+  <rect x="33" y="40" width="36" height="46" rx="4" fill="url(#rkPaper1)" />
+
+  <!-- Sheet 3 (Foreground paper - royal blue with folded corner) -->
+  <path d="M41 46 H67 L79 58 V88 C79 90.2 77.2 92 75 92 H41 C38.8 92 37 90.2 37 88 V50 C37 47.8 38.8 46 41 46 Z" fill="url(#rkPaper2)" />
+  <path d="M67 46 V58 H79 Z" fill="#93C5FD" />
+
+  <!-- Print Lines on Sheet 3 -->
+  <rect x="44" y="58" width="16" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9" />
+  <rect x="44" y="65" width="26" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9" />
+  <rect x="44" y="72" width="22" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9" />
+  <rect x="44" y="79" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9" />
+
+  <!-- CMYK indicator dots -->
+  <circle cx="21" cy="90" r="3" fill="#06B6D4" />
+  <circle cx="29" cy="90" r="3" fill="#EC4899" />
+</svg>

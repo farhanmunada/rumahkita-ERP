@@ -8,15 +8,15 @@ import { eq } from 'drizzle-orm';
 const INITIAL_BUSINESSES = [
   {
     slug: 'percetakan',
-    name: 'RK Offset & Percetakan',
-    tagline: 'Solusi Cetak Offset, Digital, dan Packaging Berkualitas',
+    name: 'Rumah Kita Percetakan',
+    tagline: 'Solusi Cetak Digital dan Packaging Berkualitas',
     invoicePrefix: 'PRT',
-    address: 'Jl. Percetakan Raya No. 45, Jakarta',
-    phone: '0812-3456-7890',
-    email: 'percetakan@rk-corp.id',
-    bankName: 'BCA',
-    bankAccountNumber: '8830-123-456',
-    bankAccountHolder: 'PT RK Sinergi Mandiri',
+    address: 'Dandu, Demangan, Kec. Ngadirejo, Kabupaten Temanggung, Jawa Tengah 56255',
+    phone: '082313735304',
+    email: 'emailrumahkita@gmail.com',
+    bankName: 'BNI',
+    bankAccountNumber: '2120408076',
+    bankAccountHolder: 'MUCHAMMAD TABAH FARCHAN MUNADA',
     defaultTerms: '1. Pembayaran DP 50% saat PO disetujui, pelunasan sebelum barang dikirim.\n2. Komplain maksimal 2x24 jam setelah barang diterima.',
   },
   {

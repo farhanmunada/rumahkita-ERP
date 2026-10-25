@@ -3,7 +3,7 @@ import type { Invoice, InvoiceItem, Business, Client } from '@/shared/db/schema'
 
 export type { Invoice, InvoiceItem };
 
-export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'CANCELLED';
+export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PARTIAL' | 'PAID' | 'CANCELLED';
 
 export interface InvoiceItemWithTotal extends InvoiceItem {
   totalPrice: number;
@@ -32,13 +32,14 @@ export const createInvoiceSchema = z.object({
   taxPercent: z.number().min(0).max(100).default(0),
   discountType: z.enum(['fixed', 'percent']).default('fixed'),
   discountValue: z.number().min(0).default(0),
+  downPayment: z.number().min(0, 'Uang muka tidak boleh negatif').default(0),
   notes: z.string().optional(),
   terms: z.string().optional(),
   items: z.array(invoiceItemSchema).min(1, 'Minimal harus ada 1 baris item invoice'),
 });
 
 export const updateInvoiceStatusSchema = z.object({
-  status: z.enum(['DRAFT', 'SENT', 'PAID', 'CANCELLED']),
+  status: z.enum(['DRAFT', 'SENT', 'PARTIAL', 'PAID', 'CANCELLED']),
 });
 
 export type CreateInvoiceDTO = z.infer<typeof createInvoiceSchema>;

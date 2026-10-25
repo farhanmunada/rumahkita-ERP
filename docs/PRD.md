@@ -231,3 +231,55 @@ Fitur dinyatakan tuntas jika memenuhi seluruh syarat absolut berikut:
 - `PATCH /api/invoices/:id/status` (update status: DRAFT, SENT, PAID, CANCELLED)
 - `DELETE /api/invoices/:id`
 - `GET /api/invoices/next-number?business_id=:id` (generate format nomor urut berikutnya)
+
+---
+
+## 8. Modul Baru: Kalkulator HPP & Estimasi Harga Jual (Pricing & Cost Calculator)
+
+### 8.1 Latar Belakang & Kebutuhan Pengguna
+Unit usaha seringkali mengeluarkan modal belanja bahan/jasa terlebih dahulu sebelum menentukan harga penawaran ke pembeli. Pengguna membutuhkan alat hitung HPP interaktif yang menghitung seluruh modal dasar, memberikan simulasi margin keuntungan, dan langsung mengonversinya menjadi invoice atau penawaran harga.
+
+### 8.2 User Story
+*Sebagai pemilik usaha multi-lini, saya ingin merinci seluruh biaya modal proyek (bahan baku, jasa/tenaga kerja, overhead), agar saya mengetahui modal dasar per unit dan mendapatkan perbandingan harga jual yang menguntungkan serta aman sebelum menawarkan ke konsumen.*
+
+### 8.3 Kriteria Penerimaan (GIVEN / WHEN / THEN)
+1. **Rincian Komponen Modal Dinamis:**
+   - GIVEN: Halaman Kalkulator HPP dibuka.
+   - WHEN: Pengguna memilih unit usaha (Percetakan / Konveksi / Desain / Web Dev) dan memasukkan target kuantitas output (contoh: 100 pcs).
+   - THEN: Pengguna dapat menambah/menghapus baris biaya modal dengan kategori (`Bahan Baku`, `Tenaga Kerja/Jasa`, `Overhead/Operasional`).
+2. **Kalkulasi Total HPP & HPP/Unit Real-Time:**
+   - GIVEN: Total biaya modal dimasukkan sebesar Rp 1.500.000 untuk 100 pcs.
+   - WHEN: Nilai diinput/diubah.
+   - THEN: Sistem otomatis menampilkan HPP Total = Rp 1.500.000 dan HPP per Pcs = Rp 15.000 secara instan.
+3. **Simulasi Perbandingan Multi-Skenario Harga:**
+   - GIVEN: HPP telah terhitung.
+   - WHEN: Sistem memproses simulasi.
+   - THEN: Menampilkan 4 tier perbandingan harga jual:
+     - Tier Tipis/Minimal (Margin 20%) -> Harga Jual & Laba Kotor.
+     - Tier Standar/Pasar (Margin 35%) -> Harga Jual & Laba Kotor.
+     - Tier Rekomendasi/Ideal (Margin 50%) -> Harga Jual & Laba Kotor.
+     - Tier Kustom -> Pengguna dapat memasukkan persentase margin/markup sendiri secara fleksibel.
+4. **Konversi Langsung ke Invoice (1-Click Bridge):**
+   - GIVEN: Pengguna memilih salah satu tier harga rekomendasi.
+   - WHEN: Pengguna menekan tombol "Buat Invoice dari Hasil Ini".
+   - THEN: Sistem mengarahkan ke form pembuatan invoice baru (`/invoices/new`) dengan field unit bisnis, deskripsi item barang/jasa, kuantitas, dan harga satuan yang sudah otomatis terisi.
+
+---
+
+## 9. Modul Autentikasi Sesi & Idle Auto-Logout (1 Jam Inaktif)
+
+### 9.1 Latar Belakang & Kebutuhan
+Sebelum pengguna mengakses dashboard dan modul ERP, wajib melewati gerbang login terverifikasi. Sesi harus memiliki perlindungan otomatis: jika operator meninggalkan komputer selama 1 jam tanpa interaksi, sistem otomatis mengakhiri sesi (logout) untuk mencegah akses tidak sah pada data finansial dan nota tagihan.
+
+### 9.2 Spesifikasi Teknis
+1. **Rute Terproteksi & Pengecualian:**
+   - Public: `/login`, `/api/auth/login`, `/api/auth/logout`, `/invoices/[id]/print` (halaman verifikasi dokumen cetak via QR).
+   - Protected: Seluruh halaman lain (`/`, `/invoices/*`, `/clients/*`, `/calculator/*`, `/settings/*`).
+2. **Manajemen Sesi:**
+   - Cookie HttpOnly `rk_session` terenkripsi / tertanda tangan aman (HMAC SHA-256 via Web Crypto API natif).
+   - Masa berlaku sesi: 3.600 detik (1 jam).
+3. **Idle Timeout Watcher (Client-Side & Server-Side):**
+   - Client watcher memantau interaksi pengguna (`mousemove`, `keydown`, `click`, `scroll`).
+   - Setiap interaksi aktif memperbarui timestamp aktivitas (dibatasi throttling 2 menit ke `/api/auth/touch`).
+   - Bila tidak ada interaksi selama 60 menit berturut-turut, klien memanggil `/api/auth/logout` dan mengarahkan ke `/login?reason=idle_timeout`.
+   - Di sisi server (Middleware), setiap request memvalidasi umur token; jika melebihi 3.600 detik sejak aktivitas terakhir, request langsung diarahkan ke `/login`.

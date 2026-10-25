@@ -55,7 +55,7 @@ export default async function DashboardPage() {
     {
       label: 'Total Tagihan Lunas',
       value: formatRupiah(stats.totalRevenue),
-      subtext: `${stats.paidCount} invoice berstatus lunas`,
+      subtext: `${stats.paidCount} lunas${(stats as any).partialCount ? `, ${(stats as any).partialCount} DP` : ''}`,
       icon: DollarSign,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
     {
       label: 'Menunggu Pembayaran',
       value: formatRupiah(stats.pendingRevenue),
-      subtext: `${stats.sentCount + stats.draftCount} invoice belum terbayar`,
+      subtext: `${stats.sentCount + stats.draftCount + ((stats as any).partialCount || 0)} tagihan / sisa DP`,
       icon: Clock,
       color: 'text-amber-600',
       bg: 'bg-amber-50',
@@ -86,25 +86,12 @@ export default async function DashboardPage() {
     },
   ];
 
-  const getBusinessColor = (slug: string) => {
-    switch (slug) {
-      case 'percetakan':
-        return 'border-l-blue-600 text-blue-700 bg-blue-50/40';
-      case 'desain':
-        return 'border-l-purple-600 text-purple-700 bg-purple-50/40';
-      case 'web-dev':
-        return 'border-l-cyan-600 text-cyan-700 bg-cyan-50/40';
-      case 'konveksi':
-        return 'border-l-amber-600 text-amber-700 bg-amber-50/40';
-      default:
-        return 'border-l-slate-600 text-slate-700 bg-slate-50/40';
-    }
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PAID':
         return <Badge variant="paid">Lunas</Badge>;
+      case 'PARTIAL':
+        return <Badge variant="partial">DP Diterima</Badge>;
       case 'SENT':
         return <Badge variant="sent">Terkirim</Badge>;
       case 'CANCELLED':
@@ -177,21 +164,19 @@ export default async function DashboardPage() {
           {businesses.map((b) => (
             <div
               key={b.id}
-              className={`p-4 rounded-xl border border-slate-200 border-l-4 ${getBusinessColor(
-                b.slug
-              )} shadow-sm bg-white space-y-2`}
+              className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors shadow-xs space-y-2"
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-black px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                   {b.invoicePrefix}
                 </span>
                 <span className="text-[11px] text-slate-400">Unit #{b.id}</span>
               </div>
-              <h3 className="font-bold text-sm text-slate-900">{b.name}</h3>
+              <h3 className="font-semibold text-sm text-slate-900">{b.name}</h3>
               <p className="text-xs text-slate-500 line-clamp-1">{b.tagline || '-'}</p>
               <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-600 space-y-0.5">
-                <div>Bank: <span className="font-semibold text-slate-800">{b.bankName || 'BCA'}</span></div>
-                <div className="font-mono font-medium">{b.bankAccountNumber || '-'}</div>
+                <div>Bank: <span className="font-medium text-slate-800">{b.bankName || 'BCA'}</span></div>
+                <div className="font-mono">{b.bankAccountNumber || '-'}</div>
               </div>
             </div>
           ))}
