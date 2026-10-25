@@ -59,8 +59,8 @@
 ### 2.4 Pilihan Stack & Arsitektur
 - **Framework:** Next.js (App Router, React 19 / 18, TypeScript)
 - **Styling:** Tailwind CSS (dengan utility typography & print)
-- **Database:** SQLite lokal (via `better-sqlite3` atau driver file SQLite) dengan Drizzle ORM
-  - *Alasan:* Sangat cepat, zero setup cloud/server external, portable di lokal Windows (`D:\Coding\RK-ERP`), dan skema Drizzle type-safe mudah dimigrasikan ke PostgreSQL bila nanti butuh hosting multi-user di VPS.
+- **Database:** Neon DB (Serverless PostgreSQL) dengan Drizzle ORM (`@neondatabase/serverless` / `drizzle-orm/neon-http`)
+  - *Alasan:* Serverless PostgreSQL modern, auto-scaling, driver HTTP stateless cepat untuk serverless Next.js, tanpa overhead kompilasi biner C++ lokal (seperti better-sqlite3 pada Windows), dan skema Drizzle type-safe berbasis `pgTable`.
 
 ---
 
@@ -69,8 +69,9 @@
 | # | Sumber | Versi | Tanggal Akses | Status Validasi |
 |---|--------|-------|---------------|-----------------|
 | 1 | Next.js Official Docs | v15.x | 2026-10-25 | ✅ Verified |
-| 2 | Drizzle ORM SQLite Docs | latest | 2026-10-25 | ✅ Verified |
-| 3 | W3C CSS Paged Media Spec (`@page`, `@media print`) | Level 3 | 2026-10-25 | ✅ Verified |
+| 2 | Drizzle ORM Neon HTTP Docs | latest | 2026-10-25 | ✅ Verified |
+| 3 | Neon Serverless Postgres Docs | latest | 2026-10-25 | ✅ Verified |
+| 4 | W3C CSS Paged Media Spec (`@page`, `@media print`) | Level 3 | 2026-10-25 | ✅ Verified |
 
 ---
 
@@ -86,7 +87,7 @@
 ## 5. Rekomendasi
 
 1. Inisialisasi projek monolitik Next.js di root repositori menggunakan TypeScript, Tailwind CSS, dan ESLint.
-2. Gunakan SQLite + Drizzle ORM untuk persistensi data lokal yang cepat dan bebas friksi koneksi eksternal.
+2. Gunakan Neon DB (Serverless PostgreSQL) + Drizzle ORM (`@neondatabase/serverless` / `drizzle-orm/neon-http`) untuk persistensi data handal, koneksi pooled stateless, dan schema type-safe.
 3. Rancang UI bersih dengan navigasi:
    - Dashboard ringkas (daftar invoice terbaru, status pembayaran: Draft, Sent, Paid, Overdue).
    - Modul Unit Bisnis (kelola 4 lini: Percetakan, Desain, Web Dev, Konveksi).

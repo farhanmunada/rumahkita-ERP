@@ -2,7 +2,7 @@
 
 **Status:** DRAFT (Menunggu Gerbang 1 Approval)  
 **Tanggal:** 2026-10-25  
-**Target Platform:** Web Application (Next.js App Router + TypeScript + Tailwind CSS + SQLite / Drizzle ORM)  
+**Target Platform:** Web Application (Next.js App Router + TypeScript + Tailwind CSS + Neon DB Serverless PostgreSQL / Drizzle ORM)  
 
 ---
 
@@ -91,14 +91,14 @@ Ketiadaan generator invoice yang terstandarisasi menghambat kecepatan penagihan 
 3. **Keamanan & Validasi:**
    - Validasi data input form di client dan server menggunakan schema validator teruji (Zod).
    - Sanitasi teks deskripsi untuk mencegah injeksi HTML/XSS saat dicetak ke dokumen.
-4. **Penyimpanan Lokal Portabel:** Database SQLite disimpan di folder data lokal proyek sehingga seluruh transaksi tersimpan permanen dan mudah dibackup via salin berkas `.db`.
+4. **Penyimpanan Serverless PostgreSQL (Neon DB):** Menggunakan Neon DB melalui driver `@neondatabase/serverless` dan `drizzle-orm/neon-http` (HTTP stateless runner, ideal untuk serverless). Konfigurasi kredensial koneksi disimpan aman via variabel lingkungan `DATABASE_URL` di `.env` (tidak di-commit).
 
 ---
 
 ## 5. Definition of Done (DoD)
 
 Fitur dinyatakan tuntas jika memenuhi seluruh syarat absolut berikut:
-1. Skema database Drizzle ORM terdefinisi dan migrasi SQLite berjalan sukses.
+1. Skema database Drizzle ORM terdefinisi (`pgTable`) dan migrasi Neon DB PostgreSQL berjalan sukses.
 2. 4 data unit bisnis awal (Percetakan, Desain, Web Dev, Konveksi) ter-seed dan dapat diedit.
 3. Alur CRUD invoice (Create, Read/Preview, Update Status, Delete) berfungsi penuh.
 4. Generator penomoran unik per unit bisnis berjalan tanpa bentrok.
@@ -168,54 +168,59 @@ Fitur dinyatakan tuntas jika memenuhi seluruh syarat absolut berikut:
 
 ## 7. Spesifikasi Kontrak Data & API Internal
 
-### 7.1 Skema Data Inti (Drizzle ORM)
+### 7.1 Skema Data Inti (Drizzle ORM pgTable - Neon DB PostgreSQL)
 - **`businesses`**:
-  - `id`: integer primary key autoincrement
-  - `slug`: text unique (e.g. `percetakan`, `desain`, `web-dev`, `konveksi`)
-  - `name`: text not null
+  - `id`: serial primary key
+  - `slug`: varchar(50) unique not null (e.g. `percetakan`, `desain`, `web-dev`, `konveksi`)
+  - `name`: varchar(255) not null
   - `tagline`: text
-  - `invoice_prefix`: text not null (e.g. `PRT`, `DSN`, `WEB`, `KNV`)
+  - `invoice_prefix`: varchar(20) not null (e.g. `PRT`, `DSN`, `WEB`, `KNV`)
   - `address`: text
-  - `phone`: text
-  - `email`: text
-  - `bank_name`: text
-  - `bank_account_number`: text
-  - `bank_account_holder`: text
+  - `phone`: varchar(50)
+  - `email`: varchar(255)
+  - `bank_name`: varchar(100)
+  - `bank_account_number`: varchar(100)
+  - `bank_account_holder`: varchar(255)
   - `default_terms`: text
+  - `created_at`: timestamp with time zone default now()
+  - `updated_at`: timestamp with time zone default now()
 - **`clients`**:
-  - `id`: integer primary key autoincrement
-  - `name`: text not null
-  - `company_name`: text
-  - `phone`: text
-  - `email`: text
+  - `id`: serial primary key
+  - `name`: varchar(255) not null
+  - `company_name`: varchar(255)
+  - `phone`: varchar(50)
+  - `email`: varchar(255)
   - `address`: text
-  - `created_at`: integer timestamp
+  - `created_at`: timestamp with time zone default now()
+  - `updated_at`: timestamp with time zone default now()
 - **`invoices`**:
-  - `id`: integer primary key autoincrement
-  - `business_id`: integer references `businesses(id)`
-  - `client_id`: integer references `clients(id)`
-  - `invoice_number`: text not null unique
-  - `issue_date`: text not null (YYYY-MM-DD)
-  - `due_date`: text not null (YYYY-MM-DD)
-  - `status`: text not null default 'DRAFT'
+  - `id`: serial primary key
+  - `business_id`: integer references `businesses(id)` on delete restrict
+  - `client_id`: integer references `clients(id)` on delete restrict
+  - `invoice_number`: varchar(100) not null unique
+  - `issue_date`: varchar(10) not null (YYYY-MM-DD)
+  - `due_date`: varchar(10) not null (YYYY-MM-DD)
+  - `status`: varchar(20) not null default 'DRAFT' (DRAFT, SENT, PAID, CANCELLED)
   - `subtotal`: integer not null default 0
-  - `discount_type`: text default 'fixed' (fixed/percentage)
+  - `discount_type`: varchar(20) default 'fixed' (fixed/percentage)
   - `discount_value`: integer default 0
   - `tax_percent`: integer default 0
   - `tax_amount`: integer default 0
   - `total_amount`: integer not null default 0
   - `notes`: text
   - `terms`: text
-  - `created_at`: integer timestamp
+  - `created_at`: timestamp with time zone default now()
+  - `updated_at`: timestamp with time zone default now()
 - **`invoice_items`**:
-  - `id`: integer primary key autoincrement
+  - `id`: serial primary key
   - `invoice_id`: integer references `invoices(id)` on delete cascade
-  - `item_type`: text not null default 'service' ('goods' | 'service')
+  - `item_type`: varchar(20) not null default 'service' ('goods' | 'service')
   - `description`: text not null
-  - `quantity`: real not null default 1
-  - `unit`: text (e.g. 'pcs', 'rim', 'lembar', 'paket', 'jam')
+  - `quantity`: numeric(10, 2) not null default '1'
+  - `unit`: varchar(50) (e.g. 'pcs', 'rim', 'lembar', 'paket', 'jam')
   - `unit_price`: integer not null default 0
   - `total_price`: integer not null default 0
+  - `created_at`: timestamp with time zone default now()
 
 ### 7.2 API Endpoints (Next.js Server Actions / Route Handlers)
 - `GET /api/businesses` & `PUT /api/businesses/:id`
