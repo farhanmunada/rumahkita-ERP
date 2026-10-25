@@ -1,10 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { getAllClients } from '@/features/clients/services/client.service';
 import { ClientList } from '@/features/clients/components/ClientList';
 import { Client } from '@/shared/db/schema';
 import { Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Manajemen Data Klien | Vola ERP',
+  description: 'Kelola direktori kontak klien, email, nomor WhatsApp, dan riwayat tagihan',
+};
 
 export default async function ClientsPage() {
   let clients: Client[] = [];

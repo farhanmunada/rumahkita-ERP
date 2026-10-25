@@ -1,10 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { getAllBusinesses } from '@/features/businesses/services/business.service';
 import { BusinessSettingsForm } from '@/features/businesses/components/BusinessSettingsForm';
 import { Business } from '@/shared/db/schema';
 import { Building2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Pengaturan Unit Bisnis | Vola ERP',
+  description: 'Konfigurasi profil usaha, rekening bank, alamat kop surat, dan syarat ketentuan tagihan',
+};
 
 export default async function BusinessSettingsPage() {
   let businesses: Business[] = [];

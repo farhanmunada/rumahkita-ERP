@@ -1,10 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { getAllInvoices } from '@/features/invoices/services/invoice.service';
 import { getAllBusinesses } from '@/features/businesses/services/business.service';
 import { InvoiceList } from '@/features/invoices/components/InvoiceList';
 import { FileText } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Daftar Tagihan & Faktur | Vola ERP',
+  description: 'Kelola seluruh tagihan invoice unit bisnis dengan filter status dan preview cetak A4',
+};
 
 export default async function InvoicesPage() {
   let invoices: any[] = [];

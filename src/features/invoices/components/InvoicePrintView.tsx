@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
 import { InvoiceWithRelations, InvoiceStatus } from '../types';
@@ -89,7 +90,12 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
   const theme = getThemeClass(business.slug);
 
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = `Invoice_${invoice.invoiceNumber}_${business.name.replace(/\s+/g, '_')}`;
     window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   };
 
   const handleStatusChange = async (newStatus: InvoiceStatus) => {
@@ -216,20 +222,13 @@ export function InvoicePrintView({ invoice: initialInvoice }: InvoicePrintViewPr
               {/* Info Unit Usaha */}
               <div className="max-w-md space-y-1">
                 <div className="flex items-center gap-2.5">
-                  {business.slug === 'percetakan' ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src="/logos/rumah-kita-icon.svg"
-                      alt="Rumah Kita Percetakan"
-                      className="w-8 h-8 object-contain shrink-0"
-                    />
-                  ) : (
-                    <div
-                      className={`w-7 h-7 rounded flex items-center justify-center font-black text-white text-xs ${theme.bgPrimary}`}
-                    >
-                      {business.invoicePrefix}
-                    </div>
-                  )}
+                  <Image
+                    src="/icon-32.png"
+                    alt={business.name}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-lg object-contain shrink-0"
+                  />
                   <h1 className={`text-2xl font-black tracking-tight ${theme.primary}`}>
                     {business.name}
                   </h1>
