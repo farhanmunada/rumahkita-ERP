@@ -90,16 +90,16 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
   return (
     <div className="space-y-6">
       {/* Top action & filter bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
         <div className="flex flex-1 items-center gap-3">
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-neutral-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
             <input
               type="text"
               placeholder="Cari vendor, alamat, atau spesialisasi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -108,7 +108,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
             onChange={(e) =>
               setRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
             }
-            className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">Semua Rating</option>
             <option value="5">⭐⭐⭐⭐⭐ (5 Bintang)</option>
@@ -121,7 +121,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hidden sm:block"
+            className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hidden sm:block"
           >
             <option value="all">Semua Kategori</option>
             <option value="general">Umum</option>
@@ -140,7 +140,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
               setVendorToEdit(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
             Tambah Vendor
@@ -150,14 +150,14 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
 
       {/* Vendor Cards Grid */}
       {filteredVendors.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-neutral-900 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-800 p-8">
-          <Building2 className="w-12 h-12 mx-auto text-neutral-400 mb-3" />
-          <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
+        <div className="text-center py-12 bg-white rounded-xl border border-dashed border-slate-300 p-8 shadow-xs">
+          <Building2 className="w-12 h-12 mx-auto text-slate-400 mb-3" />
+          <h3 className="text-base font-semibold text-slate-800">
             {searchTerm || ratingFilter !== 'all' || selectedCategory !== 'all'
               ? 'Tidak ada rekanan vendor yang sesuai filter'
               : 'Belum ada rekanan vendor terdaftar'}
           </h3>
-          <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             Daftarkan vendor bahan baku, percetakan, konveksi, atau jasa pihak ketiga untuk membandingkan harga dan kualitas.
           </p>
           <button
@@ -165,7 +165,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
               setVendorToEdit(null);
               setIsModalOpen(true);
             }}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold"
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-xs"
           >
             <Plus className="w-4 h-4" />
             Daftarkan Vendor Pertama
@@ -176,51 +176,51 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
           {filteredVendors.map((vendor) => (
             <div
               key={vendor.id}
-              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col justify-between"
+              className="bg-white border border-slate-200/80 rounded-xl shadow-xs hover:shadow-sm transition-shadow p-5 flex flex-col justify-between"
             >
               <div>
                 {/* Header card */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
-                    <h3 className="font-bold text-neutral-900 dark:text-white text-base">
+                    <h3 className="font-bold text-slate-900 text-base">
                       {vendor.name}
                     </h3>
-                    <span className="inline-block mt-1 px-2 py-0.5 text-[11px] font-semibold tracking-wide uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded border border-neutral-200 dark:border-neutral-700">
+                    <span className="inline-block mt-1 px-2 py-0.5 text-[11px] font-semibold tracking-wide uppercase bg-slate-100 text-slate-700 rounded border border-slate-200">
                       {vendor.category || 'General'}
                     </span>
                   </div>
-                  <div className="bg-amber-50 dark:bg-amber-950/40 px-2 py-1 rounded border border-amber-200 dark:border-amber-800/50">
+                  <div className="bg-amber-50 px-2 py-1 rounded border border-amber-200">
                     <VendorRatingStars rating={vendor.rating} size="sm" />
                   </div>
                 </div>
 
                 {/* Info section */}
-                <div className="space-y-2 mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+                <div className="space-y-2 mt-3 text-xs text-slate-600">
                   {vendor.address && (
                     <div className="flex items-start gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-neutral-400 mt-0.5 shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
                       <span className="line-clamp-2">{vendor.address}</span>
                     </div>
                   )}
 
                   {vendor.phone && (
                     <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span>{vendor.phone}</span>
                     </div>
                   )}
 
                   {vendor.email && (
                     <div className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                      <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span>{vendor.email}</span>
                     </div>
                   )}
 
                   {vendor.qualityNotes && (
-                    <div className="mt-3 p-2.5 bg-neutral-50 dark:bg-neutral-800/60 rounded-lg border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-600 dark:text-neutral-300">
-                      <div className="flex items-center gap-1 font-semibold text-neutral-700 dark:text-neutral-300 mb-0.5">
-                        <FileText className="w-3 h-3 text-emerald-500" />
+                    <div className="mt-3 p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600">
+                      <div className="flex items-center gap-1 font-semibold text-slate-700 mb-0.5">
+                        <FileText className="w-3 h-3 text-blue-600" />
                         Catatan Kualitas:
                       </div>
                       <p className="italic">&ldquo;{vendor.qualityNotes}&rdquo;</p>
@@ -230,14 +230,14 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
               </div>
 
               {/* Bottom Actions */}
-              <div className="flex items-center justify-between pt-4 mt-4 border-t border-neutral-100 dark:border-neutral-800">
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedVendorForCatalog(vendor);
                     setIsCatalogModalOpen(true);
                   }}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                 >
                   <Layers className="w-3.5 h-3.5" />
                   Katalog Item
@@ -251,7 +251,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
                       setIsModalOpen(true);
                     }}
                     title="Edit Vendor"
-                    className="p-1.5 text-neutral-500 hover:text-neutral-900 dark:hover:text-white rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                    className="p-1.5 text-slate-500 hover:text-slate-900 rounded hover:bg-slate-100 transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -259,7 +259,7 @@ export function VendorList({ initialVendors = [], businessId }: VendorListProps)
                     type="button"
                     onClick={() => handleDelete(vendor.id, vendor.name)}
                     title="Hapus Vendor"
-                    className="p-1.5 text-red-500 hover:text-red-700 rounded hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    className="p-1.5 text-rose-500 hover:text-rose-700 rounded hover:bg-rose-50 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

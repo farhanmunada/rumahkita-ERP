@@ -83,31 +83,31 @@ export function ProjectList({
     switch (status) {
       case 'PLANNING':
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200">
             Planning
           </span>
         );
       case 'IN_PROGRESS':
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
             In Progress
           </span>
         );
       case 'COMPLETED':
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
             Completed
           </span>
         );
       case 'CANCELLED':
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200">
             Cancelled
           </span>
         );
       default:
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-neutral-100 text-neutral-600">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200">
             {status}
           </span>
         );
@@ -120,22 +120,22 @@ export function ProjectList({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 max-w-xl">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-neutral-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
             <input
               type="text"
               placeholder="Cari nama proyek atau klien..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-neutral-400 shrink-0" />
+            <Filter className="w-4 h-4 text-slate-400 shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-900 text-xs font-semibold text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="ALL">Semua Status</option>
               <option value="PLANNING">Planning</option>
@@ -152,7 +152,7 @@ export function ProjectList({
             setProjectToEdit(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-colors shrink-0"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-xs transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           Rencana Proyek Baru
@@ -160,11 +160,11 @@ export function ProjectList({
       </div>
 
       {/* Projects Table */}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-bold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Nama Proyek & Klien</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
                 <th className="py-3.5 px-4 text-right">Target Omzet</th>
@@ -175,10 +175,10 @@ export function ProjectList({
                 <th className="py-3.5 px-4 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800 text-xs">
+            <tbody className="divide-y divide-slate-100 text-xs">
               {filteredProjects.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-neutral-400 italic">
+                  <td colSpan={8} className="py-12 text-center text-slate-400 italic">
                     Belum ada data proyek. Buat rencana proyek baru untuk mulai memantau HPP dan laba real.
                   </td>
                 </tr>
@@ -190,21 +190,21 @@ export function ProjectList({
                   return (
                     <tr
                       key={p.id}
-                      className="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                      className="hover:bg-slate-50 transition-colors"
                     >
                       <td className="py-3.5 px-4">
                         <Link
                           href={`/projects/${p.id}`}
-                          className="font-bold text-sm text-neutral-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-colors"
+                          className="font-bold text-sm text-slate-900 hover:text-blue-600 flex items-center gap-1.5 transition-colors"
                         >
-                          <Briefcase className="w-3.5 h-3.5 text-neutral-400" />
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400" />
                           {p.name}
                         </Link>
-                        <div className="flex items-center gap-2 text-neutral-500 text-[11px] mt-0.5">
+                        <div className="flex items-center gap-2 text-slate-500 text-[11px] mt-0.5">
                           {p.client ? (
                             <span>Klien: {p.client.name}</span>
                           ) : (
-                            <span className="italic text-neutral-400">Tanpa Klien</span>
+                            <span className="italic text-slate-400">Tanpa Klien</span>
                           )}
                           {p.startDate && <span>• Mulai: {p.startDate}</span>}
                         </div>
@@ -214,27 +214,27 @@ export function ProjectList({
                         {getStatusBadge(p.status)}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-neutral-900 dark:text-white">
+                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-slate-900">
                         {formatRupiah(p.targetRevenue)}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-amber-600 dark:text-amber-400">
+                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-amber-600">
                         {formatRupiah(p.totalCost)}
                       </td>
 
                       <td className={`py-3.5 px-4 text-right font-mono font-bold ${
                         p.grossProfit >= 0
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-red-600 dark:text-red-400'
+                          ? 'text-emerald-600'
+                          : 'text-rose-600'
                       }`}>
                         {formatRupiah(p.grossProfit)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded font-mono font-bold text-xs ${
+                        <span className={`inline-block px-2 py-0.5 rounded font-mono font-bold text-xs border ${
                           isHealthy
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}>
                           {p.profitMargin || '0'}%
                         </span>
@@ -244,13 +244,13 @@ export function ProjectList({
                         {p.invoice ? (
                           <Link
                             href={`/invoices/${p.invoice.id}`}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                           >
                             <FileText className="w-3 h-3" />
                             {p.invoice.invoiceNumber}
                           </Link>
                         ) : (
-                          <span className="text-[11px] text-neutral-400 italic">
+                          <span className="text-[11px] text-slate-400 italic">
                             Belum Terbit
                           </span>
                         )}
@@ -260,7 +260,7 @@ export function ProjectList({
                         <div className="flex items-center justify-center gap-2">
                           <Link
                             href={`/projects/${p.id}`}
-                            className="p-1.5 text-neutral-600 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400 rounded transition-colors"
+                            className="p-1.5 text-slate-500 hover:text-blue-600 rounded transition-colors"
                             title="Rincian Modal & Margin"
                           >
                             <ArrowRight className="w-4 h-4" />
@@ -271,7 +271,7 @@ export function ProjectList({
                               setProjectToEdit(p);
                               setIsModalOpen(true);
                             }}
-                            className="p-1.5 text-neutral-400 hover:text-blue-600 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors"
                             title="Edit Proyek"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -279,7 +279,7 @@ export function ProjectList({
                           <button
                             type="button"
                             onClick={() => handleDelete(p.id)}
-                            className="p-1.5 text-neutral-400 hover:text-red-600 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
                             title="Hapus Proyek"
                           >
                             <Trash2 className="w-4 h-4" />

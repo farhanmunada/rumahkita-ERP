@@ -46,13 +46,13 @@ export function VendorRatingStars({
               className={`${sizeClasses[size]} ${
                 isFilled
                   ? 'text-amber-400 fill-amber-400'
-                  : 'text-neutral-300 dark:text-neutral-700'
+                  : 'text-slate-200'
               }`}
             />
           </button>
         );
       })}
-      <span className="text-xs font-semibold ml-1 text-neutral-600 dark:text-neutral-400">
+      <span className="text-xs font-semibold ml-1 text-slate-500">
         {rating}/{maxRating}
       </span>
     </div>

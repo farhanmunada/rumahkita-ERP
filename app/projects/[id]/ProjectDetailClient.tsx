@@ -29,7 +29,7 @@ export function ProjectDetailClient({ initialProject }: ProjectDetailClientProps
     <div className="space-y-6">
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Kembali ke Daftar Proyek

@@ -101,19 +101,19 @@ export function VendorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div className="flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+            <Building2 className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-slate-900">
               {vendorToEdit ? 'Edit Data Rekanan Vendor' : 'Tambah Vendor Baru'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -122,13 +122,13 @@ export function VendorModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg">
+            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
               Nama Rekanan / Vendor <span className="text-red-500">*</span>
             </label>
             <input
@@ -136,17 +136,17 @@ export function VendorModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Contoh: CV Sablon Kilat"
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1 flex items-center gap-1">
                 <Award className="w-3.5 h-3.5" /> Rating Kualitas (1 - 5)
               </label>
-              <div className="py-2 px-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800">
+              <div className="py-2 px-3 border border-slate-300 rounded-lg bg-white">
                 <VendorRatingStars
                   rating={rating}
                   interactive={true}
@@ -156,13 +156,13 @@ export function VendorModal({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
                 Kategori Spesialisasi
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
                 <option value="general">Umum / Lainnya</option>
                 <option value="konveksi">Konveksi / Jahit</option>
@@ -176,7 +176,7 @@ export function VendorModal({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1 flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" /> Alamat Lengkap / Lokasi
             </label>
             <textarea
@@ -184,13 +184,13 @@ export function VendorModal({
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Contoh: Jl. Percetakan Negara No. 12, Senen, Jakarta Pusat"
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1 flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5" /> Telepon / WhatsApp
               </label>
               <input
@@ -198,12 +198,12 @@ export function VendorModal({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="0812-XXXX-XXXX"
-                className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1 flex items-center gap-1">
                 <Mail className="w-3.5 h-3.5" /> Email
               </label>
               <input
@@ -211,13 +211,13 @@ export function VendorModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="vendor@mail.com"
-                className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1 flex items-center gap-1">
               <FileText className="w-3.5 h-3.5" /> Catatan Reputasi & Kualitas (Internal)
             </label>
             <textarea
@@ -225,23 +225,23 @@ export function VendorModal({
               value={qualityNotes}
               onChange={(e) => setQualityNotes(e.target.value)}
               placeholder="Catatan kelebihan, kekurangan, ketepatan waktu pengiriman..."
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              className="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 shadow-xs"
             >
               {isSubmitting ? 'Menyimpan...' : vendorToEdit ? 'Simpan Perubahan' : 'Tambah Vendor'}
             </button>

@@ -88,11 +88,11 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-slate-900">
                 {project.name}
               </h1>
 
@@ -101,7 +101,7 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
                 value={status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={isUpdatingStatus}
-                className="px-3 py-1 text-xs font-semibold rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                className="px-3 py-1 text-xs font-semibold rounded-full border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
                 <option value="PLANNING">📝 Perencanaan (Planning)</option>
                 <option value="IN_PROGRESS">⚙️ Sedang Berjalan (In Progress)</option>
@@ -110,16 +110,16 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
               </select>
             </div>
 
-            <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500 flex-wrap">
+            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 flex-wrap">
               {project.business && (
-                <span className="flex items-center gap-1 font-medium text-neutral-700 dark:text-neutral-300">
+                <span className="flex items-center gap-1 font-medium text-slate-700">
                   <Building2 className="w-3.5 h-3.5" />
                   {project.business.name}
                 </span>
               )}
 
               {project.client && (
-                <span className="flex items-center gap-1 font-medium text-neutral-700 dark:text-neutral-300">
+                <span className="flex items-center gap-1 font-medium text-slate-700">
                   <User className="w-3.5 h-3.5" />
                   Klien: {project.client.name}
                 </span>
@@ -134,7 +134,7 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
             </div>
 
             {project.description && (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-2 max-w-2xl">
+              <p className="text-xs text-slate-600 mt-2 max-w-2xl">
                 {project.description}
               </p>
             )}
@@ -145,7 +145,7 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
             {project.invoiceId ? (
               <Link
                 href={`/invoices/${project.invoiceId}`}
-                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
               >
                 <FileText className="w-4 h-4" />
                 Lihat Invoice Klien
@@ -156,7 +156,7 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
                 type="button"
                 onClick={handleBridgeInvoice}
                 disabled={isBridging}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors disabled:opacity-50"
               >
                 <FileText className="w-4 h-4" />
                 {isBridging ? 'Menerbitkan...' : 'Terbitkan Invoice'}
@@ -166,7 +166,7 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
         </div>
 
         {bridgeMessage && (
-          <div className="mt-4 p-3 text-xs text-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-lg flex items-center justify-between">
+          <div className="mt-4 p-3 text-xs text-blue-800 bg-blue-50 border border-blue-300 rounded-lg flex items-center justify-between">
             <span>{bridgeMessage}</span>
             {project.invoiceId && (
               <Link
@@ -183,86 +183,86 @@ export function ProjectDetailView({ project, onRefresh }: ProjectDetailViewProps
       {/* KPI Financial Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Omzet Target */}
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Nilai Penawaran / Omzet
             </span>
-            <div className="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-lg">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-neutral-900 dark:text-white mt-2">
+          <div className="text-xl font-bold font-mono text-slate-900 mt-2">
             {formatRupiah(project.targetRevenue)}
           </div>
-          <p className="text-[11px] text-neutral-400 mt-1">
+          <p className="text-[11px] text-slate-400 mt-1">
             Total nilai tagihan proyek ke klien
           </p>
         </div>
 
         {/* Card 2: Total Modal HPP Real */}
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Modal (HPP Real)
             </span>
-            <div className="p-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-lg">
+            <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
               <Briefcase className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-2">
+          <div className="text-xl font-bold font-mono text-amber-600 mt-2">
             {formatRupiah(project.totalCost)}
           </div>
-          <p className="text-[11px] text-neutral-400 mt-1">
+          <p className="text-[11px] text-slate-400 mt-1">
             {project.costs?.length || 0} pos pengeluaran riil tercatat
           </p>
         </div>
 
         {/* Card 3: Laba Kotor Riil */}
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Laba Kotor (Gross Profit)
             </span>
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-lg">
+            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className={`text-xl font-bold font-mono mt-2 ${
             project.grossProfit >= 0
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-red-600 dark:text-red-400'
+              ? 'text-emerald-600'
+              : 'text-rose-600'
           }`}>
             {formatRupiah(project.grossProfit)}
           </div>
-          <p className="text-[11px] text-neutral-400 mt-1">
+          <p className="text-[11px] text-slate-400 mt-1">
             Omzet dikurangi pengeluaran modal
           </p>
         </div>
 
         {/* Card 4: Margin Keuntungan */}
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Margin Keuntungan
             </span>
-            <div className="p-2 bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 rounded-lg">
+            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
               <Percent className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2 mt-2">
             <span className={`text-xl font-bold font-mono ${
               isHealthyMargin
-                ? 'text-emerald-600 dark:text-emerald-400'
+                ? 'text-emerald-600'
                 : 'text-amber-500'
             }`}>
               {project.profitMargin || '0'}%
             </span>
-            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
               {isHealthyMargin ? 'Sehat' : 'Ketat'}
             </span>
           </div>
-          <p className="text-[11px] text-neutral-400 mt-1">
+          <p className="text-[11px] text-slate-400 mt-1">
             Rasio efisiensi laba kotor terhadap omzet
           </p>
         </div>

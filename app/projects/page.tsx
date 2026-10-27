@@ -36,14 +36,14 @@ export default async function ProjectsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 rounded-xl">
+        <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
           <Briefcase className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="text-xl font-bold text-slate-900">
             Pelacakan Proyek & Modal HPP Riil
           </h1>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-slate-500">
             Kalkulasi akurat modal pengeluaran vendor, laba kotor, dan terbitkan invoice resmi jika siap ditagih
           </p>
         </div>

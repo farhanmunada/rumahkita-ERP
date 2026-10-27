@@ -85,48 +85,48 @@ export function VendorItemPickerModal({
     });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600" />
               Pilih dari Rekanan Vendor Terdaftar
             </h2>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Bandingkan harga modal, reputasi rating bintang, dan jarak alamat vendor
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filters */}
-        <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-neutral-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
             <input
               type="text"
               placeholder="Cari item, nama vendor, atau lokasi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-xs text-neutral-500">
+            <div className="flex items-center gap-1 text-xs text-slate-500">
               <ArrowUpDown className="w-3.5 h-3.5" /> Urutan:
             </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="rating_desc">⭐ Rating Tertinggi</option>
               <option value="price_asc">💰 Harga Termurah</option>
@@ -136,7 +136,7 @@ export function VendorItemPickerModal({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">Semua Kategori</option>
               <option value="vendor">Vendor Jasa</option>
@@ -150,57 +150,57 @@ export function VendorItemPickerModal({
         {/* Item List */}
         <div className="p-6 space-y-3 overflow-y-auto flex-1">
           {loading ? (
-            <div className="py-12 text-center text-xs text-neutral-500">
+            <div className="py-12 text-center text-xs text-slate-500">
               Memuat katalog vendor...
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-xs text-neutral-400">
+            <div className="py-12 text-center text-xs text-slate-400">
               Tidak ada item vendor yang cocok dengan filter.
             </div>
           ) : (
             filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="border border-slate-200 rounded-xl p-4 hover:border-blue-500 hover:bg-blue-50/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-neutral-900 dark:text-white">
+                    <span className="font-bold text-sm text-slate-900">
                       {item.itemName}
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       {item.category}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-300 flex-wrap">
-                    <span className="font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-3 text-xs text-slate-600 flex-wrap">
+                    <span className="font-semibold text-blue-700 flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5 text-blue-500" />
                       {item.vendorNameDisplay}
                     </span>
                     <VendorRatingStars rating={item.vendorRating} size="sm" />
                   </div>
 
                   {item.vendorAddress && (
-                    <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                      <MapPin className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
                       <span className="line-clamp-1">{item.vendorAddress}</span>
                     </div>
                   )}
 
                   {item.vendorNotes && (
-                    <p className="text-[11px] text-neutral-500 italic">
+                    <p className="text-[11px] text-slate-500 italic">
                       &ldquo;{item.vendorNotes}&rdquo;
                     </p>
                   )}
                 </div>
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-neutral-100 dark:border-neutral-800">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                   <div className="sm:text-right">
-                    <div className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                    <div className="text-base font-bold font-mono text-slate-900">
                       {formatRupiah(item.baseCost)}
                     </div>
-                    <div className="text-[11px] text-neutral-400">
+                    <div className="text-[11px] text-slate-400">
                       per {item.unit || 'pcs'}
                     </div>
                   </div>
@@ -211,7 +211,7 @@ export function VendorItemPickerModal({
                       onSelectItem(item);
                       onClose();
                     }}
-                    className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                    className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Pilih Item
@@ -223,11 +223,11 @@ export function VendorItemPickerModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <div className="flex justify-end px-6 py-4 border-t border-slate-200 bg-slate-50">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-lg text-xs font-semibold"
+            className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold"
           >
             Tutup
           </button>

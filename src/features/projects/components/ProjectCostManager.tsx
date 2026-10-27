@@ -128,13 +128,13 @@ export function ProjectCostManager({
   return (
     <div className="space-y-6">
       {/* Top Banner & Quick Vendor Picker */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-blue-50/60 border border-blue-200/80 rounded-xl">
         <div>
-          <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-2">
-            <Package className="w-4 h-4" />
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <Package className="w-4 h-4 text-blue-600" />
             Rincian Modal Riil Proyek (HPP Real)
           </h3>
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Semua pengeluaran bahan, vendor subkon, ongkir, dan jasa internal. Data ini STRICTLY INTERNAL dan tidak tampil di invoice klien.
           </p>
         </div>
@@ -142,7 +142,7 @@ export function ProjectCostManager({
         <button
           type="button"
           onClick={() => setIsPickerOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors self-start sm:self-auto"
+          className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors self-start sm:self-auto"
         >
           <Building2 className="w-4 h-4" />
           Pilih dari Rekanan Vendor
@@ -150,7 +150,7 @@ export function ProjectCostManager({
       </div>
 
       {error && (
-        <div className="p-3 text-xs text-red-600 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg">
+        <div className="p-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg">
           {error}
         </div>
       )}
@@ -158,9 +158,9 @@ export function ProjectCostManager({
       {/* Input Form New Real Cost */}
       <form
         onSubmit={handleAddCost}
-        className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl space-y-3"
+        className="p-4 bg-white border border-slate-200 rounded-xl space-y-3 shadow-xs"
       >
-        <div className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-700">
           Tambah Pos Biaya Modal Baru
         </div>
 
@@ -171,7 +171,7 @@ export function ProjectCostManager({
               placeholder="Deskripsi pengeluaran / bahan / jasa *"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -182,7 +182,7 @@ export function ProjectCostManager({
               placeholder="Nama Vendor / Toko (opsional)"
               value={vendorName}
               onChange={(e) => setVendorName(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -190,7 +190,7 @@ export function ProjectCostManager({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="vendor">Vendor Jasa</option>
               <option value="material">Bahan Baku</option>
@@ -209,7 +209,7 @@ export function ProjectCostManager({
               placeholder="Qty"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="w-full px-2 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white text-center"
+              className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -220,7 +220,7 @@ export function ProjectCostManager({
               placeholder="Biaya Satuan (Rp) *"
               value={unitCost}
               onChange={(e) => setUnitCost(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-mono"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -232,13 +232,13 @@ export function ProjectCostManager({
             placeholder="Catatan tambahan (nomor resi, bukti bayar, catatan pengerjaan...)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full sm:max-w-md px-3 py-1.5 border border-neutral-300 dark:border-neutral-700 rounded-lg text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+            className="w-full sm:max-w-md px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+            className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs disabled:opacity-50"
           >
             <Plus className="w-3.5 h-3.5" />
             {isSubmitting ? 'Menyimpan...' : 'Tambah Pos Biaya'}
@@ -247,11 +247,11 @@ export function ProjectCostManager({
       </form>
 
       {/* Costs Table */}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-bold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                 <th className="py-3 px-4">Deskripsi Pos Biaya</th>
                 <th className="py-3 px-4">Vendor / Suplier</th>
                 <th className="py-3 px-4">Kategori</th>
@@ -261,10 +261,10 @@ export function ProjectCostManager({
                 <th className="py-3 px-4 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800 text-xs">
+            <tbody className="divide-y divide-slate-100 text-xs">
               {costs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-neutral-400 italic">
+                  <td colSpan={7} className="py-8 text-center text-slate-400 italic">
                     Belum ada pos biaya modal real untuk proyek ini. Tambahkan di atas atau gunakan picker vendor.
                   </td>
                 </tr>
@@ -272,47 +272,47 @@ export function ProjectCostManager({
                 costs.map((cost) => (
                   <tr
                     key={cost.id}
-                    className="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                    className="hover:bg-slate-50 transition-colors"
                   >
                     <td className="py-3 px-4">
-                      <div className="font-semibold text-neutral-900 dark:text-white">
+                      <div className="font-semibold text-slate-900">
                         {cost.itemName}
                       </div>
                       {cost.notes && (
-                        <div className="text-[11px] text-neutral-400 mt-0.5">
+                        <div className="text-[11px] text-slate-400 mt-0.5">
                           {cost.notes}
                         </div>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-neutral-600 dark:text-neutral-300">
+                    <td className="py-3 px-4 text-slate-600">
                       {cost.vendorNameSnapshot ? (
-                        <span className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400">
-                          <Building2 className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 font-medium text-blue-700">
+                          <Building2 className="w-3 h-3 text-blue-500" />
                           {cost.vendorNameSnapshot}
                         </span>
                       ) : (
-                        <span className="text-neutral-400 italic">-</span>
+                        <span className="text-slate-400 italic">-</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                      <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-100 text-slate-700 border border-slate-200">
                         {cost.category}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center font-mono">
                       {cost.quantity} {cost.unit || 'pcs'}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-neutral-600 dark:text-neutral-300">
+                    <td className="py-3 px-4 text-right font-mono text-slate-600">
                       {formatRupiah(cost.unitCost)}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-neutral-900 dark:text-white">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                       {formatRupiah(cost.totalCost)}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <button
                         type="button"
                         onClick={() => handleDeleteCost(cost.id)}
-                        className="p-1 text-neutral-400 hover:text-red-600 transition-colors"
+                        className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                         title="Hapus Biaya"
                       >
                         <Trash2 className="w-4 h-4" />
