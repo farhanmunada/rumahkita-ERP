@@ -283,3 +283,138 @@ Sebelum pengguna mengakses dashboard dan modul ERP, wajib melewati gerbang login
    - Setiap interaksi aktif memperbarui timestamp aktivitas (dibatasi throttling 2 menit ke `/api/auth/touch`).
    - Bila tidak ada interaksi selama 60 menit berturut-turut, klien memanggil `/api/auth/logout` dan mengarahkan ke `/login?reason=idle_timeout`.
    - Di sisi server (Middleware), setiap request memvalidasi umur token; jika melebihi 3.600 detik sejak aktivitas terakhir, request langsung diarahkan ke `/login`.
+
+---
+
+## 10. Modul Manajemen Proyek (HPP Real) & Direktori Vendor Berbasis Kualitas
+
+**Status:** DRAFT (Menunggu Gerbang 1 Approval)  
+**Tanggal:** 2026-10-27  
+
+### 10.1 Problem Statement
+1. Pengguna butuh mencatat dan menyimpan proyek dengan modal riil (HPP real) saat perencanaan atau produksi berlangsung, bahkan **sebelum atau tanpa membuat invoice**.
+2. Saat ini belum ada entitas Proyek mandiri; sistem hanya mengenal Invoice. Pengguna tidak bisa menyimpan catatan modal riil jika proyek belum siap ditagihkan.
+3. Saat memilih pihak ketiga (vendor subkon/material), data vendor saat ini hanya berupa string nama tanpa informasi esensial: alamat/lokasi (berpengaruh pada waktu kirim dan ongkir), rating kualitas buatan pengguna (1-5 bintang), serta catatan kelebihan/kekurangan vendor.
+4. Ketiadaan halaman mandiri pengelolaan vendor (`/vendors`) dan proyek (`/projects`) menyulitkan pengawasan katalog rekanan produksi dan perbandingan laba antar proyek.
+
+### 10.2 Target Goals & Non-Goals
+
+#### Goals (In-Scope — Iterasi Ini):
+1. **Entitas & Halaman Proyek Mandiri (`/projects`):**
+   - Membuat dan menyimpan Proyek mandiri tanpa kewajiban membuat invoice.
+   - Atribut proyek: Nama Proyek, Unit Bisnis, Klien (opsional), Status (`PLANNING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`), Nilai Penawaran/Omzet Target, Realisasi Nilai.
+   - Pencatatan HPP Real proyek (`project_costs`): daftar pos pengeluaran riil (vendor, bahan baku, ongkir, jasa pihak ketiga).
+   - Indikator finansial otomatis: Total Modal Real, Laba Kotor (Profit = Omzet - Total Modal), dan Margin Keuntungan (%).
+   - Jembatan 1-Klik: "Terbitkan Invoice dari Proyek Ini" (otomatis mengonversi proyek menjadi draft invoice jika sudah siap tagih).
+2. **Halaman Terpisah Manajemen Vendor (`/vendors`):**
+   - CRUD lengkap data Vendor: Nama, Alamat lengkap / Lokasi, No. Telepon / WhatsApp, Rating Kualitas (1 - 5 bintang), Catatan Reputasi/Kualitas, Kategori Spesialisasi.
+   - Manajemen katalog tarif item/jasa per vendor.
+3. **Smart Vendor Picker & Komparasi Kualitas:**
+   - Dialog pemilihan item vendor di form proyek, kalkulator HPP, dan invoice: menampilkan Harga Modal, Rating Kualitas (bintang), Alamat, dan Catatan.
+   - Opsi filter dan sorting (harga termurah, rating tertinggi).
+4. **Isolasi Kerahasiaan Modal & Cetak Bersih:**
+   - Data modal (HPP real), vendor, laba, dan margin berstatus STRICTLY INTERNAL.
+   - Lembar cetak dokumen A4 dan ekspor PDF resmi invoice dijamin 100% bebas dari data HPP/vendor internal.
+
+#### Non-Goals (Out-of-Scope):
+1. **Integrasi Purchase Order (PO) Formal:** Sistem tidak mencetak surat pesanan pembelian (PO) resmi ke vendor.
+2. **Manajemen Utang/Piutang Akrual Multi-Jurnal:** Sistem tidak menerapkan double-entry bookkeeping akuntansi.
+3. **Geolokasi GPS / Radius Jarak Otomatis:** Alamat dicatat sebagai teks deskriptif terstruktur tanpa API Maps berbayar.
+
+### 10.3 User Stories & Kriteria Penerimaan (Format GIVEN/WHEN/THEN)
+
+#### Story 1: Simpan Proyek Mandiri dengan HPP Real (Tanpa Invoice)
+*Sebagai pemilik usaha, saya ingin menyimpan proyek baru dengan rincian biaya modal riil (HPP real) tanpa harus membuat invoice, agar saya dapat melacak pengeluaran proyek yang sedang berjalan.*
+
+- **Kriteria 1.1:**
+  - GIVEN: Pengguna berada di halaman `/projects/new` atau Kalkulator HPP.
+  - WHEN: Pengguna memasukkan nama proyek "Pengadaan Kaos Komunitas 100 pcs", unit bisnis "Konveksi", nilai target Rp 6.000.000, serta menambahkan pos modal real (Kain Rp 2.500.000, Sablon DTF Vendor A Rp 1.200.000, Jahit Rp 800.000).
+  - THEN: Proyek tersimpan dengan Total Modal Real = Rp 4.500.000, Estimasi Laba = Rp 1.500.000, Margin = 25.0%, dengan status `IN_PROGRESS` dan tanpa invoice.
+- **Kriteria 1.2 (Konversi ke Invoice saat Selesai):**
+  - GIVEN: Proyek tersimpan di database dengan HPP real.
+  - WHEN: Pengguna menekan tombol "Terbitkan Invoice".
+  - THEN: Sistem membuat draft invoice terkait, menyalin data klien dan nilai tagihan, serta menautkan `invoiceId` ke proyek tersebut.
+
+#### Story 2: Manajemen Vendor Mandiri di Halaman `/vendors`
+*Sebagai pemilik bisnis, saya ingin mengelola direktori rekanan vendor di halaman tersendiri lengkap dengan alamat, rating, dan catatan kualitas, agar saya memiliki pusat data rekanan yang terorganisir.*
+
+- **Kriteria 2.1:**
+  - GIVEN: Pengguna berada di halaman `/vendors`.
+  - WHEN: Pengguna menambah vendor baru dengan Nama: "CV Sablon Kilat", Alamat: "Jl. Percetakan Negara No. 12, Jakarta Pusat", Telepon: "081234567890", Rating: 5, Catatan: "Hasil sablon DTF sangat presisi, jarang meleset".
+  - THEN: Vendor tersimpan di database dan tampil di daftar vendor dengan badge rating 5 bintang dan alamat jelas.
+
+#### Story 3: Pemilihan Vendor Berbasis Harga, Alamat, dan Rating
+*Sebagai operator saat menyusun modal proyek, saya ingin memilih item dari vendor dengan melihat perbandingan harga, rating bintang, dan alamat, agar saya dapat memutuskan vendor paling efisien dan berkualitas.*
+
+- **Kriteria 3.1:**
+  - GIVEN: Form biaya proyek terbuka dan pengguna membuka picker vendor.
+  - WHEN: Sistem memuat katalog vendor.
+  - THEN: Menampilkan kartu/tabel vendor dengan kolom Nama Vendor, Harga Modal Satuan, Alamat Vendor, Rating (1-5 Bintang), dan Catatan Kualitas serta tombol "Pilih".
+
+### 10.4 Batasan Teknis & Keamanan
+1. **Performa Agregasi:** Kalkulasi total modal real dan laba dihitung instan < 50ms.
+2. **Integritas Relasi:** Jika vendor dihapus, riwayat modal proyek tetap aman (gunakan `onDelete: set null` pada referensi vendor dan simpan `vendorNameSnapshot`).
+3. **Format Presisi:** Semua nominal modal dan laba disimpan sebagai integer mata uang IDR rupiah murni.
+
+### 10.5 Spesifikasi Antarmuka & Rute Baru
+1. `/projects`: Daftar proyek, filter status (`PLANNING`, `IN_PROGRESS`, `COMPLETED`), kartu laba & modal.
+2. `/projects/new`: Form pembuatan proyek baru & input HPP real awal.
+3. `/projects/[id]`: Detail proyek, ringkasan HPP real, daftar pengeluaran vendor, tombol terbitkan invoice.
+4. `/vendors`: Direktori master vendor, filter rating & kategori, CRUD vendor.
+5. Update Navbar: Tambah navigasi "Proyek" dan "Vendor".
+
+### 10.6 Kontrak Data Skema Drizzle ORM
+```typescript
+// vendors
+export const vendors = pgTable('vendors', {
+  id: serial('id').primaryKey(),
+  businessId: integer('business_id').references(() => businesses.id, { onDelete: 'set null' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  address: text('address'),
+  phone: varchar('phone', { length: 50 }),
+  email: varchar('email', { length: 255 }),
+  rating: integer('rating').notNull().default(5), // Skala 1 - 5
+  qualityNotes: text('quality_notes'),
+  category: varchar('category', { length: 50 }).notNull().default('general'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// projects (Proyek Mandiri untuk Lacak HPP Real)
+export const projects = pgTable('projects', {
+  id: serial('id').primaryKey(),
+  businessId: integer('business_id').notNull().references(() => businesses.id),
+  clientId: integer('client_id').references(() => clients.id, { onDelete: 'set null' }),
+  invoiceId: integer('invoice_id').references(() => invoices.id, { onDelete: 'set null' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  status: varchar('status', { length: 30 }).notNull().default('PLANNING'), // PLANNING, IN_PROGRESS, COMPLETED, CANCELLED
+  targetRevenue: integer('target_revenue').notNull().default(0), // Nilai proyek / omzet
+  totalCost: integer('total_cost').notNull().default(0), // Total HPP Real
+  grossProfit: integer('gross_profit').notNull().default(0), // Omzet - Total Cost
+  profitMargin: numeric('profit_margin', { precision: 5, scale: 2 }).default('0'), // Persentase margin
+  startDate: varchar('start_date', { length: 10 }),
+  endDate: varchar('end_date', { length: 10 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// project_costs (Rincian Biaya Modal Real per Proyek)
+export const projectCosts = pgTable('project_costs', {
+  id: serial('id').primaryKey(),
+  projectId: integer('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  vendorId: integer('vendor_id').references(() => vendors.id, { onDelete: 'set null' }),
+  vendorNameSnapshot: varchar('vendor_name_snapshot', { length: 255 }),
+  itemName: varchar('item_name', { length: 255 }).notNull(),
+  category: varchar('category', { length: 50 }).notNull().default('vendor'), // vendor, material, labor, shipping, other
+  quantity: numeric('quantity', { precision: 10, scale: 2 }).notNull().default('1'),
+  unit: varchar('unit', { length: 50 }),
+  unitCost: integer('unit_cost').notNull().default(0),
+  totalCost: integer('total_cost').notNull().default(0),
+  isPaidToVendor: boolean('is_paid_to_vendor').notNull().default(false),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+```
+
