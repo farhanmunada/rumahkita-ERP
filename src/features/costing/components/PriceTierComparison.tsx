@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FilePlus, TrendingUp, CheckCircle, Sparkles } from 'lucide-react';
+import { FilePlus, TrendingUp, CheckCircle, Sparkles, Briefcase } from 'lucide-react';
 import { PriceTier, PricingMethod } from '../types';
 import { Button } from '@/shared/components/ui/Button';
 import { formatRupiah } from '@/shared/lib/currency';
@@ -12,6 +12,7 @@ interface PriceTierComparisonProps {
   outputUnit: string;
   method: PricingMethod;
   onApplyToInvoice: (tier: PriceTier) => void;
+  onSaveAsProject: (tier: PriceTier) => void;
 }
 
 export function PriceTierComparison({
@@ -20,6 +21,7 @@ export function PriceTierComparison({
   outputUnit,
   method,
   onApplyToInvoice,
+  onSaveAsProject,
 }: PriceTierComparisonProps) {
   return (
     <div className="space-y-4">
@@ -117,14 +119,25 @@ export function PriceTierComparison({
                 </p>
               </div>
 
-              {/* Tombol Buat Invoice */}
-              <div className="pt-4 mt-2">
+              {/* Tombol Aksi */}
+              <div className="pt-4 mt-2 space-y-2">
                 <Button
                   type="button"
                   size="sm"
                   variant={isOptimal ? 'primary' : 'outline'}
-                  onClick={() => onApplyToInvoice(tier)}
+                  onClick={() => onSaveAsProject(tier)}
                   className="w-full text-xs font-semibold gap-1.5"
+                >
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>Simpan sbg Proyek</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onApplyToInvoice(tier)}
+                  className="w-full text-xs font-semibold gap-1.5 text-slate-600 hover:text-slate-900 border-slate-200"
                 >
                   <FilePlus className="w-3.5 h-3.5" />
                   <span>Jadikan Invoice</span>

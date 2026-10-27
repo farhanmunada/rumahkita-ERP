@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
   Calculator,
-  RefreshCw,
   Sliders,
   DollarSign,
   Package,
@@ -14,10 +14,11 @@ import {
   Globe,
   Database,
   CheckCircle,
+  Briefcase,
+  X,
 } from 'lucide-react';
 import { CostItem, PricingMethod, PriceTier, CostCategory } from '../types';
 import { calculateCostingTotals } from '../services/costing-calculator';
-import { BUSINESS_PRESETS } from '../services/costing-presets';
 import { CostItemList } from './CostItemList';
 import { PriceTierComparison } from './PriceTierComparison';
 import { VendorCostPickerModal } from './VendorCostPickerModal';
@@ -88,24 +89,6 @@ export function CostCalculator({ businesses, initialVendorCosts = [] }: CostCalc
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  // Handle Load Preset
-  const handleLoadPreset = (slug: string) => {
-    setSelectedBusinessSlug(slug);
-    const preset = BUSINESS_PRESETS[slug];
-    if (preset) {
-      setProductName(preset.defaultItemName);
-      setOutputQuantity(preset.defaultQty);
-      setOutputUnit(preset.defaultUnit);
-      setCostItems(
-        preset.items.map((item, idx) => ({
-          ...item,
-          id: `${Date.now()}-${idx}`,
-          totalCost: item.quantity * item.unitCost,
-        }))
-      );
-    }
   };
 
   // Mutasi Baris Modal
@@ -208,6 +191,96 @@ export function CostCalculator({ businesses, initialVendorCosts = [] }: CostCalc
     router.push(`/invoices/new?${query.toString()}`);
   };
 
+  // State & handler untuk Simpan Hasil HPP ke Proyek Berjalan
+  const [clients, setClients] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [isSaveProjectModalOpen, setIsSaveProjectModalOpen] = useState(false);
+  const [targetTierForProject, setTargetTierForProject] = useState<PriceTier | null>(null);
+  const [projectFormName, setProjectFormName] = useState('');
+  const [projectFormClientId, setProjectFormClientId] = useState<string>('');
+  const [projectFormTargetRevenue, setProjectFormTargetRevenue] = useState('');
+  const [projectFormStatus, setProjectFormStatus] = useState('IN_PROGRESS');
+  const [projectFormDescription, setProjectFormDescription] = useState('');
+  const [isSavingProject, setIsSavingProject] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    fetch('/api/clients')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setClients(data);
+      })
+      .catch((e) => console.error('Failed to fetch clients', e));
+  }, []);
+
+  useEffect(() => {
+    if (isSaveProjectModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isSaveProjectModalOpen]);
+
+  const handleOpenSaveProject = (tier: PriceTier) => {
+    setTargetTierForProject(tier);
+    setProjectFormName(productName ? `${productName} (${tier.name})` : `Proyek Baru (${tier.name})`);
+    setProjectFormTargetRevenue(tier.totalPrice.toString());
+    setProjectFormStatus('IN_PROGRESS');
+    setProjectFormDescription(`Proyek dari estimasi kalkulator HPP [Tier: ${tier.name}]. Rincian modal: ${costItems.length} item.`);
+    setIsSaveProjectModalOpen(true);
+  };
+
+  const handleSaveProjectSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectFormName.trim()) {
+      alert('Nama proyek wajib diisi');
+      return;
+    }
+    setIsSavingProject(true);
+    try {
+      const payload = {
+        name: projectFormName.trim(),
+        businessId: activeBusiness?.id || 1,
+        clientId: projectFormClientId ? Number(projectFormClientId) : null,
+        status: projectFormStatus || 'IN_PROGRESS',
+        targetRevenue: parseFloat(projectFormTargetRevenue) || 0,
+        description: projectFormDescription.trim() || null,
+        costs: costItems.map((c) => ({
+          itemName: c.name || 'Pos Pengeluaran',
+          category: c.category,
+          vendorNameSnapshot: c.vendorName || null,
+          quantity: c.quantity.toString(),
+          unit: c.unit || 'pcs',
+          unitCost: c.unitCost,
+          totalCost: c.totalCost,
+          notes: c.notes || null,
+        })),
+      };
+
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Gagal menyimpan proyek');
+      }
+
+      const createdProject = await res.json();
+      setIsSaveProjectModalOpen(false);
+      router.push(`/projects/${createdProject.id}`);
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setIsSavingProject(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header & Preset Selector */}
@@ -227,24 +300,20 @@ export function CostCalculator({ businesses, initialVendorCosts = [] }: CostCalc
             </p>
           </div>
 
-          {/* Preset Buttons per Unit Bisnis */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Contoh Cepat:</span>
-            </span>
-            {businesses.map((b) => (
-              <Button
-                key={b.slug}
-                type="button"
-                size="sm"
-                variant={selectedBusinessSlug === b.slug ? 'primary' : 'outline'}
-                onClick={() => handleLoadPreset(b.slug)}
-                className="text-xs h-8"
-              >
-                {b.name.replace('RK ', '')}
-              </Button>
-            ))}
+          {/* Unit Usaha Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500">Unit Usaha:</span>
+            <select
+              value={selectedBusinessSlug}
+              onChange={(e) => setSelectedBusinessSlug(e.target.value)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {businesses.map((b) => (
+                <option key={b.slug} value={b.slug}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -443,6 +512,7 @@ export function CostCalculator({ businesses, initialVendorCosts = [] }: CostCalc
         outputUnit={outputUnit}
         method={pricingMethod}
         onApplyToInvoice={handleApplyToInvoice}
+        onSaveAsProject={handleOpenSaveProject}
       />
 
       {/* Modal Picker dari DB */}
@@ -464,6 +534,152 @@ export function CostCalculator({ businesses, initialVendorCosts = [] }: CostCalc
         vendorCosts={vendorCosts}
         onRefresh={fetchVendorCosts}
       />
+
+      {/* Modal Simpan Sebagai Proyek Berjalan */}
+      {isSaveProjectModalOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in duration-150">
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                  Simpan sebagai Proyek Berjalan
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Simpan kalkulasi modal HPP ke projek tanpa wajib membuat invoice sekarang
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSaveProjectModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProjectSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nama Proyek <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={projectFormName}
+                  onChange={(e) => setProjectFormName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Misal: Redesign Website & Branding"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Klien (Opsional)
+                  </label>
+                  <select
+                    value={projectFormClientId}
+                    onChange={(e) => setProjectFormClientId(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Tanpa Klien / Belum Ditentukan</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Status Proyek
+                  </label>
+                  <select
+                    value={projectFormStatus}
+                    onChange={(e) => setProjectFormStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="IN_PROGRESS">Sedang Berjalan</option>
+                    <option value="PLANNING">Perencanaan / Draft</option>
+                    <option value="COMPLETED">Selesai</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Target Nilai Penawaran / Omzet (Rp)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={projectFormTargetRevenue}
+                  onChange={(e) => setProjectFormTargetRevenue(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0 jika belum diset"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Deskripsi / Catatan Proyek
+                </label>
+                <textarea
+                  rows={2}
+                  value={projectFormDescription}
+                  onChange={(e) => setProjectFormDescription(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Catatan tambahan mengenai proyek atau estimasi HPP..."
+                />
+              </div>
+
+              {/* Rincian Ringkas HPP yang Ditransfer */}
+              <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100/80 space-y-2 text-xs">
+                <div className="flex justify-between items-center text-slate-600">
+                  <span>Pos Biaya Modal Dialihkan:</span>
+                  <span className="font-semibold text-slate-800">{costItems.length} item</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-600">
+                  <span>Total Biaya Modal (HPP):</span>
+                  <span className="font-mono font-bold text-slate-900">{formatRupiah(calculation.totalCost)}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-600">
+                  <span>Target Omzet:</span>
+                  <span className="font-mono font-bold text-blue-600">
+                    {formatRupiah(parseFloat(projectFormTargetRevenue) || 0)}
+                  </span>
+                </div>
+                <div className="pt-1.5 border-t border-blue-100 flex justify-between items-center text-slate-700 font-medium">
+                  <span>Estimasi Laba Kotor:</span>
+                  <span className="font-mono font-bold text-emerald-600">
+                    {formatRupiah((parseFloat(projectFormTargetRevenue) || 0) - calculation.totalCost)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSaveProjectModalOpen(false)}
+                  className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingProject}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>{isSavingProject ? 'Menyimpan Proyek...' : 'Simpan Proyek Sekarang'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

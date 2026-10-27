@@ -215,7 +215,11 @@ export function ProjectList({
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-mono font-semibold text-slate-900">
-                        {formatRupiah(p.targetRevenue)}
+                        {p.targetRevenue > 0 ? (
+                          formatRupiah(p.targetRevenue)
+                        ) : (
+                          <span className="text-slate-400 font-normal text-xs italic">Belum diset</span>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-mono font-semibold text-amber-600">
@@ -231,13 +235,17 @@ export function ProjectList({
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded font-mono font-bold text-xs border ${
-                          isHealthy
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
-                          {p.profitMargin || '0'}%
-                        </span>
+                        {p.targetRevenue > 0 ? (
+                          <span className={`inline-block px-2 py-0.5 rounded font-mono font-bold text-xs border ${
+                            isHealthy
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                            {p.profitMargin || '0'}%
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-mono text-xs">-</span>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4 text-center">

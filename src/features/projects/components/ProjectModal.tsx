@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Briefcase, DollarSign, Calendar, User, Building2 } from 'lucide-react';
 import { Business, Client, Project } from '@/shared/db/schema';
 import { formatRupiah, parseRupiahInput } from '@/shared/lib/currency';
@@ -32,6 +33,22 @@ export function ProjectModal({
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (projectToEdit) {
@@ -55,11 +72,11 @@ export function ProjectModal({
     }
   }, [projectToEdit, isOpen, businesses]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedRevenue = parseRupiahInput(targetRevenue);
+    const parsedRevenue = targetRevenue.trim() ? parseRupiahInput(targetRevenue) : 0;
 
     if (!name.trim()) {
       setError('Nama proyek wajib diisi');
@@ -109,9 +126,9 @@ export function ProjectModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in duration-150">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
@@ -193,12 +210,12 @@ export function ProjectModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Target Omzet / Nilai Penawaran (Rp) *
+                Target Omzet / Nilai Penawaran (Rp)
+                <span className="text-slate-400 font-normal ml-1">(Opsional)</span>
               </label>
               <input
                 type="text"
-                required
-                placeholder="Cth: 15.000.000"
+                placeholder="0 (Bisa ditentukan nanti)"
                 value={targetRevenue}
                 onChange={(e) => setTargetRevenue(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -279,6 +296,7 @@ export function ProjectModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

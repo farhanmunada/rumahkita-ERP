@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProjects, createProject } from '@/features/projects/services/project.service';
+import {
+  getProjects,
+  createProject,
+  addProjectCost,
+  recalculateProjectTotals,
+} from '@/features/projects/services/project.service';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,6 +51,31 @@ export async function POST(request: NextRequest) {
       startDate: body.startDate || null,
       endDate: body.endDate || null,
     });
+
+    if (body.costs && Array.isArray(body.costs) && body.costs.length > 0) {
+      for (const costItem of body.costs) {
+        const uCost = Math.round(Number(costItem.unitCost) || 0);
+        const qtyStr = (costItem.quantity !== undefined ? costItem.quantity : '1').toString();
+        const qtyNum = parseFloat(qtyStr) || 1;
+        const tCost = Math.round(Number(costItem.totalCost) || uCost * qtyNum);
+
+        await addProjectCost({
+          projectId: newProject.id,
+          vendorId: costItem.vendorId ? Number(costItem.vendorId) : null,
+          vendorNameSnapshot: costItem.vendorNameSnapshot ? costItem.vendorNameSnapshot.trim() : null,
+          itemName: (costItem.itemName || costItem.name || 'Pos Biaya').trim(),
+          category: costItem.category || 'vendor',
+          quantity: qtyStr,
+          unit: costItem.unit ? costItem.unit.trim() : 'pcs',
+          unitCost: uCost,
+          totalCost: tCost,
+          isPaidToVendor: false,
+          notes: costItem.notes ? costItem.notes.trim() : null,
+        });
+      }
+      const recalculated = await recalculateProjectTotals(newProject.id);
+      return NextResponse.json(recalculated || newProject, { status: 201 });
+    }
 
     return NextResponse.json(newProject, { status: 201 });
   } catch (error) {

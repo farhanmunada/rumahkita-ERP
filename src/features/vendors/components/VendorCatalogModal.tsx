@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Trash2, Tag, Layers, Check } from 'lucide-react';
 import { Vendor, VendorCost } from '@/shared/db/schema';
 import { formatRupiah, parseRupiahInput } from '@/shared/lib/currency';
@@ -25,6 +26,22 @@ export function VendorCatalogModal({
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const fetchItems = async () => {
     try {
@@ -54,7 +71,7 @@ export function VendorCatalogModal({
     }
   }, [isOpen, vendor.id]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,9 +128,9 @@ export function VendorCatalogModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in duration-150">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
@@ -270,6 +287,7 @@ export function VendorCatalogModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

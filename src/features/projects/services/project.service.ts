@@ -216,6 +216,23 @@ export async function deleteProjectCost(costId: number): Promise<boolean> {
   return false;
 }
 
+export async function updateProjectCost(
+  costId: number,
+  data: Partial<NewProjectCost>
+): Promise<ProjectCost | null> {
+  const [updated] = await db
+    .update(projectCosts)
+    .set(data)
+    .where(eq(projectCosts.id, costId))
+    .returning();
+
+  if (updated) {
+    await recalculateProjectTotals(updated.projectId);
+    return updated;
+  }
+  return null;
+}
+
 export async function bridgeProjectToInvoice(
   projectId: number,
   dueDateDays: number = 14

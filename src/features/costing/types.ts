@@ -17,6 +17,7 @@ export interface CostItem {
   unitCost: number;
   totalCost: number;
   vendorCostId?: number;
+  notes?: string;
 }
 
 export type PricingMethod = 'margin' | 'markup';
