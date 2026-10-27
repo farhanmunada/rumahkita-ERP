@@ -217,3 +217,45 @@ test('Session Authentication & Token Security', async (t) => {
     assert.ok(afterTouch!.lastActive >= beforeTouch!.lastActive);
   });
 });
+
+test('Project Financials & Real HPP Calculations', async (t) => {
+  const { calculateProjectFinancials } = await import('../src/features/projects/services/project.service');
+
+  await t.test('calculates gross profit and margin percentage accurately', () => {
+    const costs = [
+      { totalCost: 2000000 },
+      { totalCost: 3500000 },
+      { totalCost: 500000 },
+    ];
+    // Total modal = 6.000.000
+    // Target omzet = 10.000.000
+    // Laba kotor = 4.000.000
+    // Margin = 40.00%
+    const res = calculateProjectFinancials(10000000, costs);
+
+    assert.equal(res.targetRevenue, 10000000);
+    assert.equal(res.totalCost, 6000000);
+    assert.equal(res.grossProfit, 4000000);
+    assert.equal(res.profitMargin, '40.00');
+  });
+
+  await t.test('handles zero revenue without division by zero errors', () => {
+    const costs = [{ totalCost: 1500000 }];
+    const res = calculateProjectFinancials(0, costs);
+
+    assert.equal(res.targetRevenue, 0);
+    assert.equal(res.totalCost, 1500000);
+    assert.equal(res.grossProfit, -1500000);
+    assert.equal(res.profitMargin, '0.00');
+  });
+
+  await t.test('handles empty costs array gracefully', () => {
+    const res = calculateProjectFinancials(5000000, []);
+
+    assert.equal(res.targetRevenue, 5000000);
+    assert.equal(res.totalCost, 0);
+    assert.equal(res.grossProfit, 5000000);
+    assert.equal(res.profitMargin, '100.00');
+  });
+});
+

@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     const created = await createVendorCost({
       businessId: Number(body.businessId),
+      vendorId: body.vendorId ? Number(body.vendorId) : null,
       vendorName: body.vendorName || null,
       itemName: body.itemName,
       category: body.category || 'vendor',

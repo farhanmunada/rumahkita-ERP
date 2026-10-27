@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { FileText, Users, Building2, LayoutDashboard, Plus, Calculator, LogOut } from 'lucide-react';
+import { FileText, Users, Building2, LayoutDashboard, Plus, Calculator, LogOut, Briefcase, Store } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
 export function Navbar() {
@@ -18,7 +18,9 @@ export function Navbar() {
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/projects', label: 'Proyek & HPP', icon: Briefcase },
     { href: '/invoices', label: 'Invoices', icon: FileText },
+    { href: '/vendors', label: 'Vendor & Rekanan', icon: Store },
     { href: '/clients', label: 'Klien', icon: Users },
     { href: '/calculator', label: 'Kalkulator HPP', icon: Calculator },
     { href: '/settings/businesses', label: 'Unit Bisnis', icon: Building2 },
