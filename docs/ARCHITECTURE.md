@@ -277,55 +277,119 @@ src/features/costing/
 │   └── costing-presets.ts          # Template pos modal default per lini bisnis
 └── types.ts                        # Definisi tipe CostItem, CostCategory, PriceTier, CalculationResult
 
-app/calculator/
-└── page.tsx                        # Halaman kalkulator HPP & margin (akses via navbar & dashboard)
 ```
-
-### 7.3 Rencana Verifikasi Modul Kalkulator
-- Unit test: uji fungsi `costing-calculator.ts` (kalkulasi HPP, selisih rumus margin vs markup, pembulatan harga).
-- Typecheck: `npx tsc --noEmit` bersih 0 error.
-- Lint: `npm run lint` bersih.
-- Build: `npm run build` sukses.
 
 ---
 
-## 8. Arsitektur Modul Autentikasi Sesi & Idle Timeout (1 Jam)
+## 9. Arsitektur Modul Manajemen Proyek (HPP Real) & Direktori Vendor
 
-### 8.1 Komponen & Alur Kerja
+### 9.1 Diagram Relasi Data (ERD)
 ```text
-[ Browser Request ] ───▶ [ Next.js middleware.ts ]
-                               │
-            ┌──────────────────┴──────────────────┐
-            ▼                                     ▼
-     [ Rute Publik ]                       [ Rute Terproteksi ]
-  - /login                                        │
-  - /api/auth/*                          Cek Cookie `rk_session`
-  - /invoices/:id/print (QR verif)                │
-                                       ┌──────────┴──────────┐
-                                       ▼                     ▼
-                               [ Valid & Aktif ]     [ Expired / Null ]
-                                 Lanjut ke Halaman     Redirect ke /login
-                                       │
-                                       ▼
-                       [ Client SessionWatcher ]
-                 (Dengar event interaksi pengguna)
-                 Idle 60 mnt -> auto-logout & redirect
+┌─────────────────┐       ┌─────────────────┐
+│   businesses    │       │     clients     │
+└────────┬────────┘       └────────┬────────┘
+         │ 1                       │ 1
+         │                         │
+         ├────────────────┐        │
+         │ 1              │ 1      │ 0..1
+         ▼                ▼        ▼
+┌─────────────────┐     ┌─────────────────┐
+│     vendors     │     │    projects     │◀─────┐ 0..1
+└────────┬────────┘     └────────┬────────┘      │
+         │ 1                     │ 1             │
+         │                       │               │
+         ▼ 0..*                  ▼ 1..*          │ (Bridge)
+┌─────────────────┐     ┌─────────────────┐      │
+│  vendor_costs   │     │  project_costs  │      │
+│ (Tarif Katalog) │     │   (HPP Real)    │      │
+└─────────────────┘     └─────────────────┘      │
+                                                 │
+                                ┌────────────────┴┐
+                                │    invoices     │
+                                └─────────────────┘
 ```
 
-### 8.2 Struktur Berkas
+### 9.2 Perubahan Skema Database (`src/shared/db/schema.ts`)
+1. **Tabel `vendors`:**
+   - Menyimpan identitas vendor rekanan: Nama, Alamat, Kontak, Rating Kualitas (1-5), Catatan Reputasi/Kualitas, Kategori Spesialisasi.
+2. **Pembaruan Tabel `vendor_costs`:**
+   - Menambahkan kolom `vendorId` (foreign key ke `vendors.id` dengan `onDelete: 'set null'`) untuk mengaitkan item katalog ke profil vendor terstruktur.
+3. **Tabel `projects`:**
+   - Entitas mandiri pelacakan proyek:
+     - `businessId`, `clientId` (opsional), `invoiceId` (opsional, tertaut jika sudah dibuat invoice).
+     - `name`, `description`, `status` (`PLANNING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`).
+     - `targetRevenue`: Target penawaran / omzet proyek (IDR integer).
+     - `totalCost`: Total HPP Real proyek terakumulasi (IDR integer).
+     - `grossProfit`: Laba kotor (`targetRevenue - totalCost`).
+     - `profitMargin`: Persentase margin (`(grossProfit / targetRevenue) * 100`).
+4. **Tabel `project_costs`:**
+   - Pos pengeluaran modal riil per proyek:
+     - `projectId`: Foreign key ke `projects.id` (`onDelete: 'cascade'`).
+     - `vendorId`: Foreign key ke `vendors.id` (`onDelete: 'set null'`).
+     - `vendorNameSnapshot`: Backup nama vendor saat input.
+     - `itemName`, `category` (`vendor`, `material`, `labor`, `shipping`, `other`), `quantity`, `unit`, `unitCost`, `totalCost`.
+     - `isPaidToVendor`: Status pelunasan modal ke vendor.
+     - `notes`: Catatan khusus pengeluaran.
+
+### 9.3 Rincian Struktur Direktori Modul Baru
 ```text
-src/features/auth/
-├── services/auth-session.ts         # Sign & verify HMAC SHA-256 session token
-├── components/
-│   ├── LoginForm.tsx                # Form login minimalis & validasi
-│   └── SessionTimeoutWatcher.tsx    # Listener client interaksi & timer auto-logout 1 jam
-└── types.ts                         # Definisi payload sesi & kredensial
+src/features/
+├── vendors/
+│   ├── components/
+│   │   ├── VendorList.tsx           # Tabel & kartu vendor, filter rating
+│   │   ├── VendorModal.tsx          # Form popup tambah/edit profil vendor
+│   │   └── VendorRatingDisplay.tsx  # Komponen render bintang & badge reputasi
+│   ├── services/
+│   │   └── vendor.service.ts        # Query CRUD vendor & katalog tarif
+│   └── types.ts                     # Definisi tipe DTO Vendor
+│
+├── projects/
+│   ├── components/
+│   │   ├── ProjectList.tsx          # Direktori proyek, filter status & perbandingan laba
+│   │   ├── ProjectForm.tsx          # Form inisiasi/edit proyek & budget target
+│   │   ├── ProjectDetailView.tsx    # Header KPI laba, ringkasan HPP, tombol buat invoice
+│   │   ├── ProjectCostManager.tsx   # Kelola tabel HPP real proyek (tambah/hapus modal)
+│   │   └── VendorItemPickerModal.tsx# Picker vendor cerdas (bandingkan harga, rating, alamat)
+│   ├── services/
+│   │   ├── project.service.ts       # CRUD proyek, agregasi HPP otomatis
+│   │   └── project-bridge.service.ts# Logika konversi proyek menjadi draft invoice
+│   └── types.ts                     # Definisi tipe DTO Proyek & Biaya Real
 
 app/
-├── login/page.tsx                   # Halaman antarmuka login
-├── api/auth/
-│   ├── login/route.ts               # POST login & terbitkan cookie
-│   ├── logout/route.ts              # POST hapus cookie sesi
-│   └── touch/route.ts               # POST perpanjang masa aktif sesi
-└── middleware.ts                    # Edge interceptor validasi sesi
+├── vendors/
+│   └── page.tsx                     # Halaman master direktori vendor
+├── api/vendors/
+│   ├── route.ts                     # GET list vendor & POST vendor baru
+│   └── [id]/route.ts                # PUT update & DELETE vendor
+├── projects/
+│   ├── page.tsx                     # Halaman direktori seluruh proyek
+│   ├── new/page.tsx                 # Form pembuatan proyek baru
+│   └── [id]/page.tsx                # Halaman detail HPP real & laba proyek
+└── api/projects/
+    ├── route.ts                     # GET & POST project
+    ├── [id]/route.ts                # GET, PUT, DELETE project
+    ├── [id]/costs/route.ts          # POST & DELETE pos modal HPP real
+    └── [id]/generate-invoice/route.ts # POST buat invoice dari data proyek
 ```
+
+### 9.4 Pembaruan Navigasi & Integrasi Antar Modul
+1. **Navbar (`src/shared/components/Navbar.tsx`):**
+   - Menambahkan menu `Proyek` (`/projects`) dan `Vendor` (`/vendors`) berdampingan dengan `Invoice` dan `Klien`.
+2. **Kalkulator HPP (`CostCalculator.tsx`):**
+   - Menambahkan tombol aksi kedua: **"Simpan sebagai Proyek Baru"** di samping tombol "Buat Invoice", memungkinkan pengguna menyimpan draft simulasi langsung menjadi proyek dengan HPP real.
+3. **Bridge Proyek ke Invoice:**
+   - Saat tombol "Terbitkan Invoice" ditekan di detail proyek, endpoint membuat invoice baru dengan relasi `invoiceId`, mengisi item invoice dari proyek, dan menandai status proyek menjadi `COMPLETED` atau `INVOICED`.
+
+### 9.5 Rencana Verifikasi Modul Proyek & Vendor
+1. **Verifikasi Database & Migrasi:**
+   - Generate Drizzle migration: `npx drizzle-kit generate`.
+   - Push / apply migration ke Neon PostgreSQL.
+   - Eksekusi query probe untuk memastikan fisik tabel `vendors`, `projects`, dan `project_costs` benar-benar tercipta di PostgreSQL.
+2. **Unit Tests:**
+   - Tes kalkulasi laba kotor & persentase margin proyek (termasuk kasus division by zero jika omzet = 0).
+   - Tes relasi cascade delete dan snapshot saat vendor dihapus.
+3. **Typecheck & Linter:**
+   - `npx tsc --noEmit` wajib 0 error.
+   - `npm run lint` wajib bersih.
+4. **Build Check:**
+   - `npm run build` sukses tanpa warning kritis.
