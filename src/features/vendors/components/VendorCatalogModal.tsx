@@ -224,7 +224,7 @@ export function VendorCatalogModal({
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-slate-50 transition-colors"
                   >
                     <div>
                       <div className="font-semibold text-sm text-slate-900">
@@ -235,8 +235,8 @@ export function VendorCatalogModal({
                         {item.notes && <span> • {item.notes}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                      <div className="text-left sm:text-right">
                         <div className="font-mono font-bold text-sm text-blue-600">
                           {formatRupiah(item.baseCost)}
                         </div>
